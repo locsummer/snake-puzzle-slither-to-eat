@@ -1,0 +1,371 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000012C00000100000001 /* SnakePuzzleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000022C00000100000001 /* SnakePuzzleApp.swift */; };
+		A10000032C00000100000001 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000042C00000100000001 /* Position.swift */; };
+		A10000052C00000100000001 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000062C00000100000001 /* Direction.swift */; };
+		A10000072C00000100000001 /* CellType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000082C00000100000001 /* CellType.swift */; };
+		A10000092C00000100000001 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000A2C00000100000001 /* Level.swift */; };
+		A100000B2C00000100000001 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000C2C00000100000001 /* GameState.swift */; };
+		A100000D2C00000100000001 /* SnakePuzzleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000E2C00000100000001 /* SnakePuzzleEngine.swift */; };
+		A100000F2C00000100000001 /* LevelRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000102C00000100000001 /* LevelRepository.swift */; };
+		A10000112C00000100000001 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000122C00000100000001 /* SoundManager.swift */; };
+		A10000132C00000100000001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000142C00000100000001 /* Theme.swift */; };
+		A10000152C00000100000001 /* GameBoardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000162C00000100000001 /* GameBoardRenderer.swift */; };
+		A10000172C00000100000001 /* VirtualDPadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000182C00000100000001 /* VirtualDPadView.swift */; };
+		A10000192C00000100000001 /* VictoryModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001A2C00000100000001 /* VictoryModalView.swift */; };
+		A100001B2C00000100000001 /* DefeatModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C2C00000100000001 /* DefeatModalView.swift */; };
+		A100001D2C00000100000001 /* LevelSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001E2C00000100000001 /* LevelSelectView.swift */; };
+		A100001F2C00000100000001 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000202C00000100000001 /* GameView.swift */; };
+		A10000212C00000100000001 /* levels.json in Resources */ = {isa = PBXBuildFile; fileRef = A10000222C00000100000001 /* levels.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A10000232C00000100000001 /* SnakePuzzle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnakePuzzle.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000022C00000100000001 /* SnakePuzzleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakePuzzleApp.swift; sourceTree = "<group>"; };
+		A10000242C00000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10000042C00000100000001 /* Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
+		A10000062C00000100000001 /* Direction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Direction.swift; sourceTree = "<group>"; };
+		A10000082C00000100000001 /* CellType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellType.swift; sourceTree = "<group>"; };
+		A100000A2C00000100000001 /* Level.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
+		A100000C2C00000100000001 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		A100000E2C00000100000001 /* SnakePuzzleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakePuzzleEngine.swift; sourceTree = "<group>"; };
+		A10000102C00000100000001 /* LevelRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelRepository.swift; sourceTree = "<group>"; };
+		A10000122C00000100000001 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		A10000142C00000100000001 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		A10000162C00000100000001 /* GameBoardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoardRenderer.swift; sourceTree = "<group>"; };
+		A10000182C00000100000001 /* VirtualDPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDPadView.swift; sourceTree = "<group>"; };
+		A100001A2C00000100000001 /* VictoryModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VictoryModalView.swift; sourceTree = "<group>"; };
+		A100001C2C00000100000001 /* DefeatModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefeatModalView.swift; sourceTree = "<group>"; };
+		A100001E2C00000100000001 /* LevelSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelSelectView.swift; sourceTree = "<group>"; };
+		A10000202C00000100000001 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		A10000222C00000100000001 /* levels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = levels.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000252C00000100000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000262C00000100000001 = {
+			isa = PBXGroup;
+			children = (
+				A10000272C00000100000001 /* SnakePuzzle */,
+				A10000282C00000100000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000272C00000100000001 /* SnakePuzzle */ = {
+			isa = PBXGroup;
+			children = (
+				A10000292C00000100000001 /* App */,
+				A100002A2C00000100000001 /* Models */,
+				A100002B2C00000100000001 /* Engine */,
+				A100002C2C00000100000001 /* Audio */,
+				A100002D2C00000100000001 /* Views */,
+				A100002E2C00000100000001 /* Resources */,
+			);
+			path = SnakePuzzle;
+			sourceTree = "<group>";
+		};
+		A10000282C00000100000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000232C00000100000001 /* SnakePuzzle.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000292C00000100000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A10000022C00000100000001 /* SnakePuzzleApp.swift */,
+				A10000242C00000100000001 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A100002A2C00000100000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A10000042C00000100000001 /* Position.swift */,
+				A10000062C00000100000001 /* Direction.swift */,
+				A10000082C00000100000001 /* CellType.swift */,
+				A100000A2C00000100000001 /* Level.swift */,
+				A100000C2C00000100000001 /* GameState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A100002B2C00000100000001 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				A100000E2C00000100000001 /* SnakePuzzleEngine.swift */,
+				A10000102C00000100000001 /* LevelRepository.swift */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		A100002C2C00000100000001 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				A10000122C00000100000001 /* SoundManager.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		A100002D2C00000100000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A10000142C00000100000001 /* Theme.swift */,
+				A10000162C00000100000001 /* GameBoardRenderer.swift */,
+				A10000182C00000100000001 /* VirtualDPadView.swift */,
+				A100001A2C00000100000001 /* VictoryModalView.swift */,
+				A100001C2C00000100000001 /* DefeatModalView.swift */,
+				A100001E2C00000100000001 /* LevelSelectView.swift */,
+				A10000202C00000100000001 /* GameView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A100002E2C00000100000001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A10000222C00000100000001 /* levels.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A100002F2C00000100000001 /* SnakePuzzle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000302C00000100000001 /* Build configuration list for PBXNativeTarget "SnakePuzzle" */;
+			buildPhases = (
+				A10000312C00000100000001 /* Sources */,
+				A10000252C00000100000001 /* Frameworks */,
+				A10000322C00000100000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SnakePuzzle;
+			productName = SnakePuzzle;
+			productReference = A10000232C00000100000001 /* SnakePuzzle.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000332C00000100000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A100002F2C00000100000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A10000342C00000100000001 /* Build configuration list for PBXProject "SnakePuzzle" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000262C00000100000001;
+			productRefGroup = A10000282C00000100000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A100002F2C00000100000001 /* SnakePuzzle */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000322C00000100000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000212C00000100000001 /* levels.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000312C00000100000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000012C00000100000001 /* SnakePuzzleApp.swift in Sources */,
+				A10000032C00000100000001 /* Position.swift in Sources */,
+				A10000052C00000100000001 /* Direction.swift in Sources */,
+				A10000072C00000100000001 /* CellType.swift in Sources */,
+				A10000092C00000100000001 /* Level.swift in Sources */,
+				A100000B2C00000100000001 /* GameState.swift in Sources */,
+				A100000D2C00000100000001 /* SnakePuzzleEngine.swift in Sources */,
+				A100000F2C00000100000001 /* LevelRepository.swift in Sources */,
+				A10000112C00000100000001 /* SoundManager.swift in Sources */,
+				A10000132C00000100000001 /* Theme.swift in Sources */,
+				A10000152C00000100000001 /* GameBoardRenderer.swift in Sources */,
+				A10000172C00000100000001 /* VirtualDPadView.swift in Sources */,
+				A10000192C00000100000001 /* VictoryModalView.swift in Sources */,
+				A100001B2C00000100000001 /* DefeatModalView.swift in Sources */,
+				A100001D2C00000100000001 /* LevelSelectView.swift in Sources */,
+				A100001F2C00000100000001 /* GameView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10000352C00000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A10000362C00000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A10000372C00000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SnakePuzzle/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snakepuzzle.slithertoeat;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A10000382C00000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SnakePuzzle/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snakepuzzle.slithertoeat;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000342C00000100000001 /* Build configuration list for PBXProject "SnakePuzzle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000352C00000100000001 /* Debug */,
+				A10000362C00000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000302C00000100000001 /* Build configuration list for PBXNativeTarget "SnakePuzzle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000372C00000100000001 /* Debug */,
+				A10000382C00000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = A10000332C00000100000001 /* Project object */;
+}

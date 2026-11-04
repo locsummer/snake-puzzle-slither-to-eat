@@ -1,0 +1,245 @@
+[
+  {
+    "id": 1,
+    "name": "First Bite",
+    "width": 8,
+    "height": 5,
+    "grid": [
+      "........",
+      "........",
+      ".A....O.",
+      "SSSSSSSS",
+      "SSSSSSSS"
+    ],
+    "snake": [[3, 2], [4, 2]],
+    "targetApples": 1
+  },
+  {
+    "id": 2,
+    "name": "Across the Gap",
+    "width": 9,
+    "height": 5,
+    "grid": [
+      ".........",
+      ".........",
+      "..A...O..",
+      "SSSS.SSSS",
+      "SSSS.SSSS"
+    ],
+    "snake": [[1, 2], [0, 2]],
+    "targetApples": 1
+  },
+  {
+    "id": 3,
+    "name": "Safe Fall",
+    "width": 8,
+    "height": 6,
+    "grid": [
+      "........",
+      "SS......",
+      "SS..A...",
+      "SS......",
+      "SS....OS",
+      "SSSSSSSS"
+    ],
+    "snake": [[1, 0], [0, 0]],
+    "targetApples": 1
+  },
+  {
+    "id": 4,
+    "name": "Spike Crossing",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      ".........",
+      ".........",
+      "..A...O..",
+      "SSSS.SSSS",
+      "SSSSXSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [[1, 2], [0, 2]],
+    "targetApples": 1
+  },
+  {
+    "id": 5,
+    "name": "Double Growth",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      ".A..A..O..",
+      "SSS..SSSSS",
+      "SSSXXSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [[1, 2], [0, 2]],
+    "targetApples": 2
+  },
+  {
+    "id": 6,
+    "name": "Terraces",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      ".......OS",
+      ".....SSSS",
+      "...A.SSSS",
+      ".SSSSSSSS",
+      "SSSSSSSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [[1, 3], [0, 3]],
+    "targetApples": 1
+  },
+  {
+    "id": 7,
+    "name": "The High Portal",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".......O.",
+      "......SS.",
+      "....A.SS.",
+      "..A.S.SS.",
+      "SSS.S.SS.",
+      "SSS...SS.",
+      "SSSSSSSSS"
+    ],
+    "snake": [[1, 3], [0, 3]],
+    "targetApples": 2
+  },
+  {
+    "id": 8,
+    "name": "The S-Bend",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      "SSSSSSSSS",
+      "S....A..S",
+      "S.SSSSS.S",
+      "S.O.....S",
+      "SSSSSSSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [[2, 1], [1, 1]],
+    "targetApples": 1
+  },
+  {
+    "id": 9,
+    "name": "The Pit",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      ".........",
+      "SS.....SS",
+      "SS..A..SS",
+      "SS.....SS",
+      "SS...O.SS",
+      "SSSSSSSSS"
+    ],
+    "snake": [[1, 0], [0, 0]],
+    "targetApples": 1
+  },
+  {
+    "id": 10,
+    "name": "Pillar Steps",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      ".A..A..O..",
+      "SS..S..SSS",
+      "SSXXSXXSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [[0, 2], [0, 3]],
+    "targetApples": 2
+  },
+  {
+    "id": 11,
+    "name": "The Bridge",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "..A....A...",
+      "SSS......OS",
+      "SSS.SS...SS",
+      "SSSXXXXXXSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [[1, 2], [0, 2]],
+    "targetApples": 2
+  },
+  {
+    "id": 12,
+    "name": "Two Level Pit",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".........",
+      "SS.....SS",
+      "SS..A..SS",
+      "SS.SSS.SS",
+      "SS..A..SS",
+      "SS...O.SS",
+      "SSSSSSSSS"
+    ],
+    "snake": [[1, 0], [0, 0]],
+    "targetApples": 2
+  },
+  {
+    "id": 13,
+    "name": "Spike Overpass",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "....A...O..",
+      "SSSS..SSSSS",
+      "SSSS..SSSSS",
+      "SSSSXXSSSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [[1, 1], [0, 1]],
+    "targetApples": 1
+  },
+  {
+    "id": 14,
+    "name": "Zig Zag",
+    "width": 10,
+    "height": 7,
+    "grid": [
+      "..........",
+      ".A...SS..O",
+      "SSSS.SS.SS",
+      "SSSS....SS",
+      "SSSS.A..SS",
+      "SSSSSSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [[1, 0], [0, 0]],
+    "targetApples": 2
+  },
+  {
+    "id": 15,
+    "name": "Grandmaster",
+    "width": 11,
+    "height": 8,
+    "grid": [
+      "...........",
+      ".A......A..",
+      "SSS.SSS.SSS",
+      "S...S.S...S",
+      "S.O.S.S...S",
+      "SSS.S.S.SSS",
+      "SSS...S.SSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [[1, 1], [0, 1]],
+    "targetApples": 2
+  }
+]
