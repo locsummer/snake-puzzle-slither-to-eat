@@ -12,72 +12,58 @@ public struct DefeatModalView: View {
             Color.black.opacity(0.45)
                 .ignoresSafeArea()
 
-            VStack(spacing: 20) {
-                // Header
+            VStack(spacing: 16) {
                 Text("💥 OOPS!")
-                    .font(.system(size: 26, weight: .black, design: .rounded))
+                    .font(.system(size: 24, weight: .black, design: .rounded))
                     .foregroundColor(Color(red: 0.90, green: 0.25, blue: 0.25))
 
                 Text(reason)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundColor(GameTheme.textSecondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
 
-                // Actions
-                VStack(spacing: 12) {
+                HStack(spacing: 10) {
                     if canUndo {
                         Button(action: onUndo) {
                             HStack {
                                 Image(systemName: "arrow.uturn.backward.circle.fill")
                                 Text("Undo Move")
                             }
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color(red: 0.25, green: 0.60, blue: 0.95), Color(red: 0.15, green: 0.45, blue: 0.85)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .cornerRadius(14)
-                            .shadow(color: Color.blue.opacity(0.35), radius: 6, x: 0, y: 3)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .background(Color(red: 0.20, green: 0.60, blue: 0.86))
+                            .cornerRadius(12)
                         }
                     }
 
                     Button(action: onRestart) {
-                        HStack {
-                            Image(systemName: "arrow.clockwise")
-                            Text("Try Again")
-                        }
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(GameTheme.textPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color(white: 0.94))
-                        .cornerRadius(12)
+                        Text("Try Again")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(GameTheme.textPrimary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .background(Color(white: 0.94))
+                            .cornerRadius(12)
                     }
 
                     Button(action: onSelectLevel) {
-                        Text("Choose Level")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        Text("Levels")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(GameTheme.textSecondary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .background(Color(white: 0.94))
+                            .cornerRadius(12)
                     }
-                    .padding(.top, 4)
                 }
-                .padding(.top, 6)
             }
-            .padding(28)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 10)
-            )
-            .padding(.horizontal, 32)
+            .padding(24)
+            .background(Color.white)
+            .cornerRadius(22)
+            .frame(maxWidth: 400)
+            .shadow(radius: 16)
         }
-        .transition(.opacity.combined(with: .scale(scale: 0.9)))
     }
 }

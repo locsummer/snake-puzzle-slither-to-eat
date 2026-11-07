@@ -6,10 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = SnakeHead,
-    secondary = PortalOuter,
+    primary = MeadowGrass,
+    secondary = PortalVortexOuter,
     tertiary = AppleRed,
-    background = BgTop,
+    background = MeadowSkyTop,
     surface = Color.White
 )
 

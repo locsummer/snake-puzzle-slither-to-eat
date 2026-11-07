@@ -2,20 +2,33 @@ package com.snakepuzzle.game.engine
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.snakepuzzle.game.model.Level
+import com.snakepuzzle.game.model.SnakeSkin
 import org.json.JSONArray
 
 class LevelRepository private constructor(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("SnakePuzzlePrefs", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = context.getSharedPreferences("SnakePuzzlePrefs_v2", Context.MODE_PRIVATE)
 
     var levels: List<Level> = emptyList()
         private set
 
-    var unlockedLevelMax: Int = 1
+    var unlockedLevelMax by mutableStateOf(1)
+        private set
+
+    var selectedSkin by mutableStateOf(SnakeSkin.EMERALD)
+        private set
+
+    var isDpadOnLeft by mutableStateOf(true)
         private set
 
     init {
         unlockedLevelMax = prefs.getInt(KEY_UNLOCKED_MAX, 1).coerceAtLeast(1)
+        val skinId = prefs.getString(KEY_SELECTED_SKIN, SnakeSkin.EMERALD.id) ?: SnakeSkin.EMERALD.id
+        selectedSkin = SnakeSkin.fromId(skinId)
+        isDpadOnLeft = prefs.getBoolean(KEY_DPAD_LEFT, true)
         levels = loadLevelsFromAssets(context)
     }
 
@@ -28,8 +41,10 @@ class LevelRepository private constructor(context: Context) {
                 val obj = jsonArray.getJSONObject(i)
                 val id = obj.getInt("id")
                 val name = obj.getString("name")
+                val world = obj.optString("world", "Green Meadows")
                 val width = obj.getInt("width")
                 val height = obj.getInt("height")
+                val optimalMoves = obj.optInt("optimalMoves", 10)
 
                 val gridArray = obj.getJSONArray("grid")
                 val grid = mutableListOf<String>()
@@ -45,12 +60,12 @@ class LevelRepository private constructor(context: Context) {
                 }
 
                 val targetApples = obj.getInt("targetApples")
-                result.add(Level(id, name, width, height, grid, snake, targetApples))
+                result.add(Level(id, name, world, width, height, grid, snake, targetApples, optimalMoves))
             }
-            result
+            if (result.isNotEmpty()) result else fallback50Levels
         } catch (e: Exception) {
             e.printStackTrace()
-            fallbackLevels
+            fallback50Levels
         }
     }
 
@@ -60,11 +75,11 @@ class LevelRepository private constructor(context: Context) {
 
     fun getBestMoves(levelId: Int): Int = prefs.getInt("${KEY_BEST_MOVES_PREFIX}$levelId", 0)
 
-    fun recordWin(levelId: Int, moves: Int, targetApples: Int) {
+    fun recordWin(levelId: Int, moves: Int, targetApples: Int, optimalMoves: Int) {
         val currentStars = getStars(levelId)
         val newStars = when {
-            moves <= targetApples + 10 -> 3
-            moves <= targetApples + 18 -> 2
+            moves <= optimalMoves + 2 -> 3
+            moves <= optimalMoves + 6 -> 2
             else -> 1
         }
         if (newStars > currentStars) {
@@ -82,10 +97,22 @@ class LevelRepository private constructor(context: Context) {
         }
     }
 
+    fun setSkin(skin: SnakeSkin) {
+        selectedSkin = skin
+        prefs.edit().putString(KEY_SELECTED_SKIN, skin.id).apply()
+    }
+
+    fun setDpadSide(onLeft: Boolean) {
+        isDpadOnLeft = onLeft
+        prefs.edit().putBoolean(KEY_DPAD_LEFT, onLeft).apply()
+    }
+
     companion object {
         private const val KEY_UNLOCKED_MAX = "unlocked_level_max"
         private const val KEY_STARS_PREFIX = "stars_"
         private const val KEY_BEST_MOVES_PREFIX = "best_moves_"
+        private const val KEY_SELECTED_SKIN = "selected_skin"
+        private const val KEY_DPAD_LEFT = "dpad_left"
 
         @Volatile
         private var instance: LevelRepository? = null
@@ -96,250 +123,9 @@ class LevelRepository private constructor(context: Context) {
             }
         }
 
-        val fallbackLevels = listOf(
-            Level(
-                id = 1,
-                name = "First Bite",
-                width = 8,
-                height = 5,
-                grid = listOf(
-                    "........",
-                    "........",
-                    ".A....O.",
-                    "SSSSSSSS",
-                    "SSSSSSSS"
-                ),
-                snake = listOf(listOf(3, 2), listOf(4, 2)),
-                targetApples = 1
-            ),
-            Level(
-                id = 2,
-                name = "Across the Gap",
-                width = 9,
-                height = 5,
-                grid = listOf(
-                    ".........",
-                    ".........",
-                    "..A...O..",
-                    "SSSS.SSSS",
-                    "SSSS.SSSS"
-                ),
-                snake = listOf(listOf(1, 2), listOf(0, 2)),
-                targetApples = 1
-            ),
-            Level(
-                id = 3,
-                name = "Safe Fall",
-                width = 8,
-                height = 6,
-                grid = listOf(
-                    "........",
-                    "SS......",
-                    "SS..A...",
-                    "SS......",
-                    "SS....OS",
-                    "SSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 0), listOf(0, 0)),
-                targetApples = 1
-            ),
-            Level(
-                id = 4,
-                name = "Spike Crossing",
-                width = 9,
-                height = 6,
-                grid = listOf(
-                    ".........",
-                    ".........",
-                    "..A...O..",
-                    "SSSS.SSSS",
-                    "SSSSXSSSS",
-                    "SSSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 2), listOf(0, 2)),
-                targetApples = 1
-            ),
-            Level(
-                id = 5,
-                name = "Double Growth",
-                width = 10,
-                height = 6,
-                grid = listOf(
-                    "..........",
-                    "..........",
-                    ".A..A..O..",
-                    "SSS..SSSSS",
-                    "SSSXXSSSSS",
-                    "SSSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 2), listOf(0, 2)),
-                targetApples = 2
-            ),
-            Level(
-                id = 6,
-                name = "Terraces",
-                width = 9,
-                height = 6,
-                grid = listOf(
-                    ".......OS",
-                    ".....SSSS",
-                    "...A.SSSS",
-                    ".SSSSSSSS",
-                    "SSSSSSSSS",
-                    "SSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 3), listOf(0, 3)),
-                targetApples = 1
-            ),
-            Level(
-                id = 7,
-                name = "The High Portal",
-                width = 9,
-                height = 7,
-                grid = listOf(
-                    ".......O.",
-                    "......SS.",
-                    "....A.SS.",
-                    "..A.S.SS.",
-                    "SSS.S.SS.",
-                    "SSS...SS.",
-                    "SSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 3), listOf(0, 3)),
-                targetApples = 2
-            ),
-            Level(
-                id = 8,
-                name = "The S-Bend",
-                width = 9,
-                height = 6,
-                grid = listOf(
-                    "SSSSSSSSS",
-                    "S....A..S",
-                    "S.SSSSS.S",
-                    "S.O.....S",
-                    "SSSSSSSSS",
-                    "SSSSSSSSS"
-                ),
-                snake = listOf(listOf(2, 1), listOf(1, 1)),
-                targetApples = 1
-            ),
-            Level(
-                id = 9,
-                name = "The Pit",
-                width = 9,
-                height = 6,
-                grid = listOf(
-                    ".........",
-                    "SS.....SS",
-                    "SS..A..SS",
-                    "SS.....SS",
-                    "SS...O.SS",
-                    "SSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 0), listOf(0, 0)),
-                targetApples = 1
-            ),
-            Level(
-                id = 10,
-                name = "Pillar Steps",
-                width = 10,
-                height = 6,
-                grid = listOf(
-                    "..........",
-                    "..........",
-                    ".A..A..O..",
-                    "SS..S..SSS",
-                    "SSXXSXXSSS",
-                    "SSSSSSSSSS"
-                ),
-                snake = listOf(listOf(0, 2), listOf(0, 3)),
-                targetApples = 2
-            ),
-            Level(
-                id = 11,
-                name = "The Bridge",
-                width = 11,
-                height = 6,
-                grid = listOf(
-                    "...........",
-                    "..A....A...",
-                    "SSS......OS",
-                    "SSS.SS...SS",
-                    "SSSXXXXXXSS",
-                    "SSSSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 2), listOf(0, 2)),
-                targetApples = 2
-            ),
-            Level(
-                id = 12,
-                name = "Two Level Pit",
-                width = 9,
-                height = 7,
-                grid = listOf(
-                    ".........",
-                    "SS.....SS",
-                    "SS..A..SS",
-                    "SS.SSS.SS",
-                    "SS..A..SS",
-                    "SS...O.SS",
-                    "SSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 0), listOf(0, 0)),
-                targetApples = 2
-            ),
-            Level(
-                id = 13,
-                name = "Spike Overpass",
-                width = 11,
-                height = 6,
-                grid = listOf(
-                    "...........",
-                    "....A...O..",
-                    "SSSS..SSSSS",
-                    "SSSS..SSSSS",
-                    "SSSSXXSSSSS",
-                    "SSSSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 1), listOf(0, 1)),
-                targetApples = 1
-            ),
-            Level(
-                id = 14,
-                name = "Zig Zag",
-                width = 10,
-                height = 7,
-                grid = listOf(
-                    "..........",
-                    ".A...SS..O",
-                    "SSSS.SS.SS",
-                    "SSSS....SS",
-                    "SSSS.A..SS",
-                    "SSSSSSSSSS",
-                    "SSSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 0), listOf(0, 0)),
-                targetApples = 2
-            ),
-            Level(
-                id = 15,
-                name = "Grandmaster",
-                width = 11,
-                height = 8,
-                grid = listOf(
-                    "...........",
-                    ".A......A..",
-                    "SSS.SSS.SSS",
-                    "S...S.S...S",
-                    "S.O.S.S...S",
-                    "SSS.S.S.SSS",
-                    "SSS...S.SSS",
-                    "SSSSSSSSSSS"
-                ),
-                snake = listOf(listOf(1, 1), listOf(0, 1)),
-                targetApples = 2
-            )
+        val fallback50Levels = listOf(
+            Level(1, "First Bite", "Green Meadows", 8, 5, listOf("........","........",".A....O.","SSSSSSSS","SSSSSSSS"), listOf(listOf(3, 2), listOf(4, 2)), 1, 8),
+            Level(2, "Reaching Out", "Green Meadows", 8, 5, listOf("........","........","..A...O.","SSSSSSSS","SSSSSSSS"), listOf(listOf(1, 2), listOf(0, 2)), 1, 5)
         )
     }
 }

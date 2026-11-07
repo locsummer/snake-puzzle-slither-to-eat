@@ -15,41 +15,51 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
-import com.snakepuzzle.game.model.Direction
-import com.snakepuzzle.game.model.GameState
-import com.snakepuzzle.game.model.Level
-import com.snakepuzzle.game.model.Position
+import com.snakepuzzle.game.model.*
 import com.snakepuzzle.game.ui.theme.*
 import kotlin.math.min
+import kotlin.math.sin
 
 @Composable
 fun GameCanvas(
     level: Level,
     state: GameState,
-    portalOpen: Boolean,
+    skin: SnakeSkin,
     modifier: Modifier = Modifier
 ) {
-    // Portal rotation animation
-    val infiniteTransition = rememberInfiniteTransition(label = "portalRotation")
+    val infiniteTransition = rememberInfiniteTransition(label = "canvasAnimations")
+
+    // Portal continuous swirl rotation
     val portalAngle by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3500, easing = LinearEasing),
+            animation = tween(durationMillis = 3000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "rotation"
+        label = "portalRotation"
     )
 
-    // Apple pulse animation
-    val appleScale by infiniteTransition.animateFloat(
+    // Apple juicy bounce pulse
+    val applePulse by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = 1.08f,
+        targetValue = 1.12f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 650, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "applePulse"
+    )
+
+    // Snake tongue flick animation
+    val tongueFlick by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "tongueFlick"
     )
 
     Canvas(modifier = modifier.fillMaxSize()) {
@@ -65,28 +75,26 @@ fun GameCanvas(
         val offsetX = (availableWidth - boardWidth) / 2f
         val offsetY = (availableHeight - boardHeight) / 2f
 
-        // Board background
+        // Board outer frame & background
         drawRoundRect(
-            color = GridBg,
-            topLeft = Offset(offsetX, offsetY),
-            size = Size(boardWidth, boardHeight),
-            cornerRadius = CornerRadius(24f, 24f)
+            color = Color.Black.copy(alpha = 0.18f),
+            topLeft = Offset(offsetX - 4f, offsetY - 4f),
+            size = Size(boardWidth + 8f, boardHeight + 8f),
+            cornerRadius = CornerRadius(18f, 18f)
         )
 
-        // Board border
         drawRoundRect(
-            color = Color.White.copy(alpha = 0.4f),
+            color = Color(0x33000000),
             topLeft = Offset(offsetX, offsetY),
             size = Size(boardWidth, boardHeight),
-            cornerRadius = CornerRadius(24f, 24f),
-            style = Stroke(width = 3f)
+            cornerRadius = CornerRadius(14f, 14f)
         )
 
-        // Grid lines
+        // Subtle Grid Lines
         for (x in 0..level.width) {
             val px = offsetX + x * cellSize
             drawLine(
-                color = GridLine,
+                color = Color.White.copy(alpha = 0.12f),
                 start = Offset(px, offsetY),
                 end = Offset(px, offsetY + boardHeight),
                 strokeWidth = 1f
@@ -95,34 +103,42 @@ fun GameCanvas(
         for (y in 0..level.height) {
             val py = offsetY + y * cellSize
             drawLine(
-                color = GridLine,
+                color = Color.White.copy(alpha = 0.12f),
                 start = Offset(offsetX, py),
                 end = Offset(offsetX + boardWidth, py),
                 strokeWidth = 1f
             )
         }
 
-        // 1. Draw Solid Ground & Walls
+        // 1. Draw Solid Terrain Blocks based on World theme
+        val (baseDirt, topTrim) = when (level.world) {
+            "Crystal Caverns" -> Pair(CavernStone, CavernCrystal)
+            "Sunken Ruins" -> Pair(RuinsStone, RuinsMoss)
+            "Sky Citadel" -> Pair(SkyStone, SkyGold)
+            "Magma Core" -> Pair(MagmaObsidian, MagmaLava)
+            else -> Pair(MeadowDirt, MeadowGrass)
+        }
+
         for (pos in level.solidPositions) {
             val cellLeft = offsetX + pos.x * cellSize
             val cellTop = offsetY + pos.y * cellSize
             val isTopSurface = !level.solidPositions.contains(Position(pos.x, pos.y - 1))
 
-            // Dirt block
+            // Main block body
             drawRoundRect(
-                color = SolidDirt,
+                color = baseDirt,
                 topLeft = Offset(cellLeft + 1f, cellTop + 1f),
                 size = Size(cellSize - 2f, cellSize - 2f),
                 cornerRadius = CornerRadius(6f, 6f)
             )
 
-            // Top grass rim if exposed to air
+            // 3D block top highlight / trim
             if (isTopSurface) {
                 drawRoundRect(
-                    color = SolidGrassTop,
+                    color = topTrim,
                     topLeft = Offset(cellLeft + 1f, cellTop + 1f),
                     size = Size(cellSize - 2f, cellSize * 0.28f),
-                    cornerRadius = CornerRadius(6f, 6f)
+                    cornerRadius = CornerRadius(5f, 5f)
                 )
             }
         }
@@ -138,7 +154,7 @@ fun GameCanvas(
                 offsetX + portal.x * cellSize + cellSize / 2f,
                 offsetY + portal.y * cellSize + cellSize / 2f,
                 cellSize,
-                portalOpen,
+                state.isPortalUnlocked,
                 portalAngle
             )
         }
@@ -149,20 +165,28 @@ fun GameCanvas(
                 offsetX + apple.x * cellSize + cellSize / 2f,
                 offsetY + apple.y * cellSize + cellSize / 2f,
                 cellSize,
-                appleScale
+                applePulse
             )
         }
 
-        // 5. Draw Snake
-        drawSnake(state.snake, state.facingDirection, offsetX, offsetY, cellSize)
+        // 5. Draw 2.5D Animated Cute Snake
+        drawSnake(
+            snake = state.snake,
+            facing = state.facingDirection,
+            skin = skin,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            cellSize = cellSize,
+            tongueFlick = tongueFlick
+        )
     }
 }
 
 private fun DrawScope.drawSpike(x: Float, y: Float, cellSize: Float) {
     val w = cellSize * 0.82f
-    val h = cellSize * 0.72f
+    val h = cellSize * 0.75f
     val cx = x + cellSize / 2f
-    val bottomY = y + cellSize - 2f
+    val bottomY = y + cellSize - 1f
     val topY = bottomY - h
 
     val path = Path().apply {
@@ -174,35 +198,39 @@ private fun DrawScope.drawSpike(x: Float, y: Float, cellSize: Float) {
     drawPath(
         path = path,
         brush = Brush.verticalGradient(
-            colors = listOf(SpikeTip, SpikeBase),
+            colors = listOf(SpikePoint, SpikeBody),
             startY = topY,
             endY = bottomY
         )
     )
 }
 
-private fun DrawScope.drawPortal(cx: Float, cy: Float, cellSize: Float, isOpen: Boolean, angle: Float) {
-    val radius = cellSize * 0.42f
+private fun DrawScope.drawPortal(cx: Float, cy: Float, cellSize: Float, isUnlocked: Boolean, angle: Float) {
+    val radius = cellSize * 0.44f
 
-    // Outer glow
+    // Outer vortex aura
     drawCircle(
         brush = Brush.radialGradient(
             colors = listOf(
-                if (isOpen) PortalGlow.copy(alpha = 0.8f) else Color.Gray.copy(alpha = 0.3f),
+                if (isUnlocked) PortalVortexGlow.copy(alpha = 0.85f) else Color.Gray.copy(alpha = 0.35f),
                 Color.Transparent
             ),
             center = Offset(cx, cy),
-            radius = radius * 1.5f
+            radius = radius * 1.6f
         ),
-        radius = radius * 1.5f,
+        radius = radius * 1.6f,
         center = Offset(cx, cy)
     )
 
     // Swirling rings
-    rotate(angle, pivot = Offset(cx, cy)) {
+    rotate(if (isUnlocked) angle else 0f, pivot = Offset(cx, cy)) {
         drawCircle(
             brush = Brush.sweepGradient(
-                colors = listOf(PortalOuter, PortalGlow, PortalInner, PortalOuter),
+                colors = if (isUnlocked) {
+                    listOf(PortalVortexOuter, PortalVortexGlow, PortalVortexInner, PortalVortexOuter)
+                } else {
+                    listOf(Color.DarkGray, Color.Gray, Color.Black, Color.DarkGray)
+                },
                 center = Offset(cx, cy)
             ),
             radius = radius,
@@ -211,81 +239,136 @@ private fun DrawScope.drawPortal(cx: Float, cy: Float, cellSize: Float, isOpen: 
         )
     }
 
-    // Inner black hole
+    // Inner vortex hole
     drawCircle(
-        color = PortalInner,
+        color = PortalVortexInner,
         radius = radius * 0.65f,
         center = Offset(cx, cy)
     )
+
+    // If locked, draw lock indicator
+    if (!isUnlocked) {
+        val lockW = cellSize * 0.22f
+        val lockH = cellSize * 0.26f
+        drawRoundRect(
+            color = Color.White.copy(alpha = 0.9f),
+            topLeft = Offset(cx - lockW / 2f, cy - lockH * 0.2f),
+            size = Size(lockW, lockH * 0.7f),
+            cornerRadius = CornerRadius(3f, 3f)
+        )
+        drawCircle(
+            color = Color.White.copy(alpha = 0.9f),
+            radius = lockW * 0.35f,
+            center = Offset(cx, cy - lockH * 0.2f),
+            style = Stroke(width = 3f)
+        )
+    }
 }
 
-private fun DrawScope.drawApple(cx: Float, cy: Float, cellSize: Float, scale: Float) {
-    val r = cellSize * 0.32f * scale
+private fun DrawScope.drawApple(cx: Float, cy: Float, cellSize: Float, pulse: Float) {
+    val r = cellSize * 0.33f * pulse
 
-    // Stem
+    // Wooden Stem
     drawRoundRect(
         color = AppleStem,
-        topLeft = Offset(cx - cellSize * 0.04f, cy - r - cellSize * 0.14f),
-        size = Size(cellSize * 0.08f, cellSize * 0.18f),
+        topLeft = Offset(cx - cellSize * 0.035f, cy - r - cellSize * 0.15f),
+        size = Size(cellSize * 0.07f, cellSize * 0.18f),
         cornerRadius = CornerRadius(2f, 2f)
     )
 
-    // Leaf
+    // Green Leaf
     val leafPath = Path().apply {
-        moveTo(cx, cy - r - cellSize * 0.04f)
-        quadraticBezierTo(cx + cellSize * 0.16f, cy - r - cellSize * 0.14f, cx + cellSize * 0.2f, cy - r - cellSize * 0.06f)
-        quadraticBezierTo(cx + cellSize * 0.10f, cy - r - cellSize * 0.02f, cx, cy - r - cellSize * 0.04f)
+        moveTo(cx, cy - r - cellSize * 0.05f)
+        quadraticBezierTo(cx + cellSize * 0.16f, cy - r - cellSize * 0.16f, cx + cellSize * 0.22f, cy - r - cellSize * 0.07f)
+        quadraticBezierTo(cx + cellSize * 0.12f, cy - r - cellSize * 0.02f, cx, cy - r - cellSize * 0.05f)
         close()
     }
     drawPath(path = leafPath, color = AppleLeaf)
 
-    // Fruit body
+    // Fruit Body with rich radial shading
     drawCircle(
         brush = Brush.radialGradient(
-            colors = listOf(Color(0xFFFF7373), AppleRed),
-            center = Offset(cx - r * 0.3f, cy - r * 0.3f),
-            radius = r * 1.2f
+            colors = listOf(AppleGleam, AppleRed, Color(0xFF9E0D0B)),
+            center = Offset(cx - r * 0.35f, cy - r * 0.35f),
+            radius = r * 1.3f
         ),
         radius = r,
         center = Offset(cx, cy)
+    )
+
+    // Specular shine dot
+    drawCircle(
+        color = Color.White.copy(alpha = 0.6f),
+        radius = r * 0.22f,
+        center = Offset(cx - r * 0.38f, cy - r * 0.38f)
     )
 }
 
 private fun DrawScope.drawSnake(
     snake: List<Position>,
     facing: Direction,
+    skin: SnakeSkin,
     offsetX: Float,
     offsetY: Float,
-    cellSize: Float
+    cellSize: Float,
+    tongueFlick: Float
 ) {
+    // Draw body segments from tail to head
     for (i in snake.indices.reversed()) {
         val pos = snake[i]
         val isHead = (i == 0)
         val isTail = (i == snake.size - 1)
-        val segSize = cellSize * if (isHead) 0.88f else if (isTail) 0.72f else 0.82f
+        val segSize = cellSize * if (isHead) 0.90f else if (isTail) 0.70f else 0.82f
 
         val cx = offsetX + pos.x * cellSize + cellSize / 2f
         val cy = offsetY + pos.y * cellSize + cellSize / 2f
 
         val segColor = when {
-            isHead -> SnakeHead
-            isTail -> SnakeTail
-            else -> SnakeBody
+            isHead -> skin.headColor
+            isTail -> skin.tailColor
+            else -> skin.bodyColor
         }
 
-        // Draw body segment
-        drawRoundRect(
-            color = segColor,
-            topLeft = Offset(cx - segSize / 2f, cy - segSize / 2f),
-            size = Size(segSize, segSize),
-            cornerRadius = CornerRadius(segSize * 0.42f, segSize * 0.42f)
+        // Draw shadow under segment
+        drawCircle(
+            color = Color.Black.copy(alpha = 0.22f),
+            radius = segSize / 2f,
+            center = Offset(cx, cy + 2f)
+        )
+
+        // Draw rounded 2.5D segment
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(skin.accentColor, segColor, segColor.copy(alpha = 0.85f)),
+                center = Offset(cx - segSize * 0.2f, cy - segSize * 0.2f),
+                radius = segSize * 0.65f
+            ),
+            radius = segSize / 2f,
+            center = Offset(cx, cy)
         )
 
         if (isHead) {
-            // Draw eyes & face
-            val eyeSize = segSize * 0.28f
+            // Little flicking tongue
+            if (tongueFlick > 0.4f) {
+                val tongueLen = cellSize * 0.26f * tongueFlick
+                val (tDx, tDy) = when (facing) {
+                    Direction.UP -> Pair(0f, -segSize / 2f - tongueLen)
+                    Direction.DOWN -> Pair(0f, segSize / 2f + tongueLen)
+                    Direction.LEFT -> Pair(-segSize / 2f - tongueLen, 0f)
+                    Direction.RIGHT -> Pair(segSize / 2f + tongueLen, 0f)
+                }
+                drawLine(
+                    color = Color(0xFFFF2A4D),
+                    start = Offset(cx, cy),
+                    end = Offset(cx + tDx, cy + tDy),
+                    strokeWidth = 3f
+                )
+            }
+
+            // Big expressive cartoon eyes
+            val eyeSize = segSize * 0.32f
             val pupilSize = eyeSize * 0.52f
-            val eyeSpacing = segSize * 0.22f
+            val eyeSpacing = segSize * 0.24f
             val eyeVertical = -segSize * 0.08f
 
             val (pupilDx, pupilDy) = when (facing) {
@@ -297,22 +380,24 @@ private fun DrawScope.drawSnake(
 
             // Left Eye
             val leftEyeCenter = Offset(cx - eyeSpacing, cy + eyeVertical)
-            drawCircle(color = SnakeEye, radius = eyeSize / 2f, center = leftEyeCenter)
-            drawCircle(color = SnakePupil, radius = pupilSize / 2f, center = leftEyeCenter + Offset(pupilDx, pupilDy))
+            drawCircle(color = skin.eyeColor, radius = eyeSize / 2f, center = leftEyeCenter)
+            drawCircle(color = skin.pupilColor, radius = pupilSize / 2f, center = leftEyeCenter + Offset(pupilDx, pupilDy))
+            drawCircle(color = Color.White, radius = pupilSize * 0.35f, center = leftEyeCenter + Offset(pupilDx - 1f, pupilDy - 1f))
 
             // Right Eye
             val rightEyeCenter = Offset(cx + eyeSpacing, cy + eyeVertical)
-            drawCircle(color = SnakeEye, radius = eyeSize / 2f, center = rightEyeCenter)
-            drawCircle(color = SnakePupil, radius = pupilSize / 2f, center = rightEyeCenter + Offset(pupilDx, pupilDy))
+            drawCircle(color = skin.eyeColor, radius = eyeSize / 2f, center = rightEyeCenter)
+            drawCircle(color = skin.pupilColor, radius = pupilSize / 2f, center = rightEyeCenter + Offset(pupilDx, pupilDy))
+            drawCircle(color = Color.White, radius = pupilSize * 0.35f, center = rightEyeCenter + Offset(pupilDx - 1f, pupilDy - 1f))
 
-            // Cheeks
-            val cheekRadius = eyeSize * 0.32f
-            drawCircle(color = SnakeCheek, radius = cheekRadius, center = Offset(cx - eyeSpacing * 1.35f, cy + eyeVertical + eyeSize * 0.75f))
-            drawCircle(color = SnakeCheek, radius = cheekRadius, center = Offset(cx + eyeSpacing * 1.35f, cy + eyeVertical + eyeSize * 0.75f))
+            // Cheerful blush cheeks
+            val cheekR = eyeSize * 0.32f
+            drawCircle(color = skin.cheekColor, radius = cheekR, center = Offset(cx - eyeSpacing * 1.35f, cy + eyeVertical + eyeSize * 0.72f))
+            drawCircle(color = skin.cheekColor, radius = cheekR, center = Offset(cx + eyeSpacing * 1.35f, cy + eyeVertical + eyeSize * 0.72f))
         } else {
-            // Body accent stripe
+            // Dorsal scale accent
             drawCircle(
-                color = SnakeStripe.copy(alpha = 0.45f),
+                color = skin.accentColor.copy(alpha = 0.55f),
                 radius = segSize * 0.18f,
                 center = Offset(cx, cy)
             )

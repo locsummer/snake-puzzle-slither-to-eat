@@ -1,37 +1,76 @@
-# 🐍 Snake Puzzle: Slither to Eat!
+# 🐍 Snake Puzzle: Slither to Eat! (Landscape Edition)
 
-Một phiên bản tái hiện đầy đủ và chuẩn xác của tựa game giải đố nổi tiếng **Snake Puzzle: Slither to Eat** (tương tự cơ chế *Apple Worm / Snakebird*), được xây dựng chuẩn Native cho cả hai nền tảng di động:
+Một phiên bản tái hiện hoàn chỉnh, nâng cấp toàn diện và tối ưu hóa cao cấp của tựa game giải đố nổi tiếng **Snake Puzzle: Slither to Eat** (lấy cảm hứng từ cơ chế vật lý khối cứng của *Apple Worm / Snakebird*), được xây dựng chuẩn Native song song cho cả hai nền tảng:
 
-- 🍏 **iOS:** Viết hoàn toàn bằng **Swift** & **SwiftUI** (Hỗ trợ iOS 15.0+).
-- 🤖 **Android:** Viết hoàn toàn bằng **Kotlin** & **Jetpack Compose** (Hỗ trợ Android 7.0 / SDK 24+).
+- 🍏 **iOS:** Viết 100% bằng **Swift** & **SwiftUI** (Khóa cứng xoay ngang **Landscape**, hỗ trợ iOS 15.0+).
+- 🤖 **Android:** Viết 100% bằng **Kotlin** & **Jetpack Compose** (Khóa cứng xoay ngang **Landscape**, hỗ trợ Android 7.0 / SDK 24+).
+- 📦 **File cài đặt Android APK sẵn có:** Đã build sẵn file `snake-puzzle.apk` ngay tại thư mục gốc của repository!
 
 ---
 
-## 🎮 Cơ chế & Luật chơi (Core Gameplay & Physics)
+## 🌟 Những nâng cấp vượt bậc trong phiên bản Master
 
-1. **Di chuyển theo lưới (Grid-based Movement):**
-   - Rắn có thể di chuyển 4 hướng: **Lên (Up)**, **Xuống (Down)**, **Trái (Left)**, **Phải (Right)**.
-   - Điều khiển bằng thao tác vuốt màn hình (**Swipe**) hoặc sử dụng cụm nút điều hướng ảo (**Virtual D-Pad**).
-   - Rắn không thể quay đầu gập ngược 180° vào đốt thân liền kề và không thể cắn vào thân mình.
+### 1. 📱 Thiết kế chuẩn Màn hình Ngang (Landscape First)
+- Cố định xoay ngang `sensorLandscape` trên Android và `UIInterfaceOrientationLandscape` trên iOS.
+- Bố cục HUD công thái học (Ergonomic Landscape UI):
+  - **Cụm D-Pad ngón tay cái:** Bố trí bên trái (mặc định) hoặc chuyển sang bên phải trong Cài đặt để phù hợp cho người thuận tay trái/phải.
+  - **Khu vực bàn cờ giải đố trung tâm:** Tự động co giãn theo tỷ lệ màn hình (Aspect Ratio Auto-fit), tối ưu vùng hiển thị và an toàn với tai thỏ / Dynamic Island.
+  - **Cụm nút tiện ích bên phải:** Undo (hoàn tác không giới hạn), Reset (chơi lại tức thì), Skins (đổi giao diện rắn), Levels (danh sách màn chơi), Settings (cài đặt âm thanh và điều khiển).
+  - **Thanh trạng thái trên đỉnh:** Hiển thị tên Thế giới, Level hiện tại, số Táo cần ăn, số Bước đi (Moves), và Banner thông báo trạng thái.
 
-2. **Ăn táo & Kéo dài thân (Slither to Eat & Grow):**
-   - Khi đầu rắn ăn một quả táo (`A`), thân rắn sẽ dài thêm 1 đốt ở lượt tiếp theo.
-   - Thân rắn dài ra giúp bắc cầu qua các hố sâu hoặc khe hở, nhưng cũng khiến việc xoay xở trong các đường hầm hẹp trở nên khó khăn hơn.
+### 2. 🐍 Tạo hình nhân vật Rắn 2.5D sống động & Biểu cảm đáng yêu
+- Tạo hình Rắn hoạt hình 2.5D có chiều sâu, bóng đổ và vảy sáng bóng.
+- Mắt rắn to tròn, có tròng đen linh hoạt tự động liếc nhìn theo hướng di chuyển tiếp theo.
+- Lưỡi rắn thè ra thụt vào tinh nghịch khi trườn, má hồng dễ thương và miệng há to phấn khích khi chuẩn bị ngoạm táo.
+- Cơ thể uốn lượn mềm mại khi đổi góc và thu nhỏ dần về phía đuôi.
 
-3. **Trọng lực & Điểm tựa (Gravity & Platforming):**
-   - Rắn chịu tác động của trọng lực. Cả cơ thể rắn hoạt động như một khối cứng liên kết.
-   - **Quy tắc giá đỡ (Support Rule):** Rắn sẽ giữ thăng bằng trên không nếu có **ít nhất một đốt thân** nằm trực tiếp trên bề mặt khối đất/đá vững chắc (`S`).
-   - Nếu không có bất kỳ đốt nào được chống đỡ bên dưới, toàn bộ cơ thể rắn sẽ **rơi tự do (Fall)** từng ô cho đến khi tiếp đất, chạm bẫy gai hoặc rơi ra khỏi bản đồ.
+### 3. 🎭 Hệ thống 5 Skin Rắn độc đáo (Unlockable Snake Skins)
+1. 🟢 **Emerald Viper (Lục Xà):** Màu xanh ngọc truyền thống với vảy sáng rực rỡ và đốm bụng vàng chanh.
+2. 🟡 **Golden Dragon (Kim Long):** Vảy vàng hoàng gia, mắt rồng hổ phách lấp lánh và sừng rồng mini.
+3. 🟣 **Cyber Neon (Điện Tử Viễn Tưởng):** Thân màu Cyan & Magenta phát quang rực rỡ phong cách tương lai.
+4. 🍓 **Strawberry Candy (Kẹo Dâu Tây):** Màu hồng phấn pastel ngọt ngào với đốm hạt dâu tây dễ thương.
+5. 🌑 **Shadow Phantom (Bóng Đêm Hư Vô):** Thân tím đen huyền bí viền hào quang tím ma thuật bí ẩn.
 
-4. **Chướng ngại vật & Cổng dịch chuyển (Hazards & Portal):**
-   - **Bẫy gai (`X`):** Chạm vào gai nhọn sẽ khiến rắn bị tiêu diệt ngay lập tức.
-   - **Cổng xoáy dịch chuyển (`O`):** Cửa thoát hiểm của màn chơi. Khi bạn ăn đủ số lượng táo trong màn, cổng xoáy không gian sẽ kích hoạt. Di chuyển đầu rắn vào tâm cổng xoáy để hoàn thành màn chơi!
+### 4. 🌍 Hệ thống 50 Level hoàn chỉnh trải dài qua 5 Thế giới (100% Solvable)
+Toàn bộ 50 màn chơi đều được phân tích, mô phỏng và **kiểm chứng giải thành công 100% bằng thuật toán BFS (Breadth-First Search)**:
+- 🌿 **Thế giới 1: Green Meadows (Level 1–10):** Làm quen với cơ chế trườn, ăn táo, bắc cầu qua hố và vào cổng.
+- 💎 **Thế giới 2: Crystal Caverns (Level 11–20):** Hang động pha lê lung linh, mê cung đá hẹp và vượt bẫy gai.
+- 🏛️ **Thế giới 3: Sunken Ruins (Level 21–30):** Tàn tích cổ rêu phong ngập nước, câu đố bậc thang đa tầng và thử thách trọng lực.
+- ☁️ **Thế giới 4: Sky Citadel (Level 31–40):** Thành cổ trên mây, vực sâu thăm thẳm đòi hỏi tính toán điểm rơi chuẩn xác.
+- 🌋 **Thế giới 5: Magma Core (Level 41–50):** Dung nham rực lửa, bẫy gai dày đặc và câu đố đại sư đầy kịch tính.
 
-5. **Tính năng hỗ trợ người chơi:**
-   - ↩️ **Undo không giới hạn (Unlimited Undos):** Cho phép bạn quay lại từng bước đi trước đó để thử nghiệm các hướng đi khác nhau.
-   - 🔄 **Restart tức thì (Instant Reset):** Đặt lại màn chơi ngay lập tức.
-   - ⭐ **Hệ thống đánh giá 3 sao:** Đánh giá số bước di chuyển tối ưu cho mỗi màn.
-   - 🎵 **Hiệu ứng âm thanh & Rung phản hồi (Synthesized SFX & Haptics):** Tự động phát âm thanh tiếng trườn, tiếng cắn táo giòn tan, tiếng rơi, tiếng chiến thắng arpeggio vui nhộn và rung xúc giác không cần tải file ngoài.
+### 5. 🔊 Bộ vi xử lý Âm thanh Chiptune Tổng hợp (Procedural Audio Synthesizer)
+- **Nhạc nền BGM Chiptune:** Tự động phát vòng lặp nhạc nền phiêu lưu retro 8-bit nhẹ nhàng êm ái mà không tốn dung lượng tải tài nguyên âm thanh ngoài.
+- **Hiệu ứng âm thanh (SFX):**
+  - Âm trườn (Slither whoosh)
+  - Âm ngoạm táo giòn tan (Apple crunch)
+  - Âm kích hoạt cổng xoáy không gian (Portal open chime)
+  - Âm rơi tự do (Gravity whoosh)
+  - Âm va chạm bẫy gai (Spike hit)
+  - Âm chiến thắng giai điệu vui tươi (Victory arpeggio fanfare)
+- Bật/tắt BGM, SFX và Rung haptic độc lập trong mục Settings.
+
+### 6. 🛠️ Khắc phục triệt để toàn bộ lỗi Gameplay
+- ✅ **Lỗi không di chuyển:** Tách biệt luồng xử lý phím ảo D-Pad và cử chỉ vuốt, tối ưu hóa vùng chạm không bị xung đột, loại bỏ triệt để hiện tượng đứng hình hoặc nuốt input.
+- ✅ **Lỗi ăn táo:** Đồng bộ tọa độ lưới giữa đầu rắn và vị trí quả táo; khi chạm táo, rắn lập tức kích hoạt sự kiện ăn, phát âm thanh, kéo dài thân và kích hoạt hiệu ứng hạt táo.
+- ✅ **Lỗi cổng dịch chuyển:** 
+  - Khi chưa ăn hết táo, cổng ở trạng thái khóa (hiển thị ổ khóa và vòng tròn ma thuật màu tím). Nếu người chơi trườn vào cổng khi chưa đủ táo, game sẽ hiển thị thông báo: `🔒 Cổng đang khóa! Hãy thu thập đủ táo trước!`.
+  - Khi ăn hết quả táo cuối cùng, cổng xoáy bừng sáng rực rỡ và xoay tròn ma thuật kèm âm thanh kích hoạt. Người chơi chỉ cần di chuyển đầu rắn vào tâm cổng để lập tức qua màn.
+- ✅ **Cơ chế trọng lực & khối cứng:** Tính toán chính xác toàn bộ điểm tựa của các đốt thân rắn trên nền đất cứng; rơi tự do mượt mà khi mất điểm tựa.
+
+---
+
+## 🎮 Cách Điều Khiển & Phím Tắt
+
+| Thao tác | Mô tả |
+|---|---|
+| **D-Pad Ảo** | Chạm vào các mũi tên Lên, Xuống, Trái, Phải trên màn hình |
+| **Vuốt màn hình (Swipe)** | Vuốt nhanh theo hướng muốn rắn trườn |
+| **Undo (↩️)** | Quay lui 1 bước di chuyển (hoàn tác không giới hạn) |
+| **Reset (🔄)** | Đặt lại vị trí ban đầu của màn chơi |
+| **Skins (🎭)** | Mở tủ đồ chọn trang phục và hiệu ứng cho rắn |
+| **Levels (🗺️)** | Xem danh sách 50 màn chơi và số sao đã đạt |
+| **Settings (⚙️)** | Tùy chỉnh BGM, SFX, Rung, và Đổi tay cầm D-Pad (Trái / Phải) |
 
 ---
 
@@ -39,110 +78,59 @@ Một phiên bản tái hiện đầy đủ và chuẩn xác của tựa game gi
 
 ```
 snake-puzzle-slither-to-eat/
+├── snake-puzzle.apk             # 📦 File APK debug đã build hoàn chỉnh (~15.6MB)
 ├── levels/
-│   └── levels.json               # 15 màn chơi được thiết kế & kiểm chứng bằng thuật toán BFS
-├── ios/                          # 🍏 Dự án Native iOS (Swift + SwiftUI)
-│   ├── Package.swift             # Hỗ trợ Swift Package Manager
-│   ├── SnakePuzzle.xcodeproj     # File dự án Xcode chuẩn
+│   └── levels.json              # 50 màn chơi 5 Thế giới (100% BFS Solved)
+├── ios/                         # 🍏 Dự án Native iOS (Swift + SwiftUI)
+│   ├── Package.swift            # SPM Package Manifest
+│   ├── SnakePuzzle.xcodeproj    # File project Xcode chuẩn
 │   └── SnakePuzzle/
-│       ├── App/
-│       │   ├── SnakePuzzleApp.swift
-│       │   └── Info.plist
-│       ├── Models/               # Position, Direction, CellType, GameState, Level
-│       ├── Engine/               # SnakePuzzleEngine, LevelRepository
-│       ├── Audio/                # SoundManager (CoreAudio / Tone Synthesizer)
-│       ├── Views/                # GameView, GameBoardRenderer, VirtualDPadView, Modals...
-│       └── Resources/            # levels.json
-└── android/                      # 🤖 Dự án Native Android (Kotlin + Jetpack Compose)
+│       ├── App/                 # SnakePuzzleApp.swift, Info.plist (Landscape locked)
+│       ├── Models/              # SnakeSkin, Position, Direction, CellType, GameState, Level
+│       ├── Engine/              # SnakePuzzleEngine, LevelRepository
+│       ├── Audio/               # SoundManager (CoreAudio / Tone & BGM Synthesizer)
+│       ├── Views/               # LandscapeGameHUD, GameBoardRenderer, Modals, Settings...
+│       └── Resources/           # levels.json
+└── android/                     # 🤖 Dự án Native Android (Kotlin + Jetpack Compose)
     ├── build.gradle.kts
     ├── settings.gradle.kts
     ├── gradlew / gradlew.bat
     └── app/
         ├── build.gradle.kts
         └── src/main/
-            ├── AndroidManifest.xml
-            ├── assets/levels.json
+            ├── AndroidManifest.xml   # Khóa sensorLandscape & Safe Area
+            ├── assets/levels.json    # 50 màn chơi đồng bộ
             ├── java/com/snakepuzzle/game/
-            │   ├── MainActivity.kt
-            │   ├── model/        # Position, Direction, CellType, GameState, Level
-            │   ├── engine/       # SnakePuzzleEngine, LevelRepository
-            │   ├── audio/        # SoundManager (AudioTrack PCM Synthesizer)
-            │   └── ui/           # Compose GameScreen, Canvas Renderer, DPad, Dialogs
-            └── res/values/       # strings.xml, colors.xml, themes.xml
+            │   ├── MainActivity.kt   # Immersive Landscape Fullscreen
+            │   ├── model/            # SnakeSkin, Position, Direction, CellType, GameState, Level
+            │   ├── engine/           # SnakePuzzleEngine, LevelRepository
+            │   ├── audio/            # SoundManager (AudioTrack PCM BGM & SFX Synthesizer)
+            │   └── ui/               # LandscapeGameHUD, GameCanvas 2.5D, Modals, Theme
+            └── res/values/           # strings.xml, colors.xml, themes.xml
 ```
 
 ---
 
-## 🚀 Hướng dẫn Chạy & Biên dịch
+## 🚀 Cài đặt & Chạy Game
 
-### 1. iOS (Swift / Xcode)
-
-**Yêu cầu:** macOS với Xcode 15+ (iOS 15.0+ Deployment Target).
-
-**Cách chạy bằng Xcode:**
-1. Mở thư mục `ios/SnakePuzzle.xcodeproj` trong Xcode:
-   ```bash
-   open ios/SnakePuzzle.xcodeproj
-   ```
-2. Chọn Simulator (ví dụ: iPhone 15, iPhone 16) hoặc thiết bị thật.
-3. Nhấn **Run (`Cmd + R`)** để khởi động và chơi game.
-
-**Cách build bằng Swift Package Manager (Command Line):**
-```bash
-cd ios
-swift build
+### 1. Cài đặt trực tiếp file APK lên điện thoại Android
+File APK đã được biên dịch sẵn tại:
 ```
+snake-puzzle.apk
+```
+Bạn chỉ cần gửi file `snake-puzzle.apk` vào điện thoại Android qua Zalo / Telegram / Google Drive / cáp USB và nhấn Cài đặt (Install) để trải nghiệm ngay lập tức!
 
----
-
-### 2. Android (Kotlin / Android Studio)
-
-**Yêu cầu:** Android Studio Hedgehog / Iguana / Jellyfish (hoặc mới hơn), JDK 17+.
-
-**Cách chạy bằng Android Studio:**
-1. Khởi động Android Studio.
-2. Chọn **Open** và dẫn tới thư mục `d:\snake-puzzle-slither-to-eat\android`.
-3. Chờ Gradle đồng bộ (Sync Project with Gradle Files).
-4. Chọn máy ảo Android Emulator hoặc cắm điện thoại đã bật USB Debugging.
-5. Nhấn nút **Run (`Shift + F10`)**.
-
-**Cách build APK qua dòng lệnh (Gradle):**
+### 2. Build lại mã nguồn Android qua dòng lệnh (Gradle)
 ```bash
 cd android
 ./gradlew assembleDebug
 ```
-*File APK xuất ra tại: `android/app/build/outputs/apk/debug/app-debug.apk`.*
+File APK mới sẽ được tạo tại: `android/app/build/outputs/apk/debug/app-debug.apk`.
 
----
-
-## 🗺️ Danh sách 15 Màn chơi & Lời giải chuẩn (Verified 100%)
-
-Tất cả 15 màn chơi đều đã được kiểm tra tính giải được qua thuật toán tìm kiếm theo chiều rộng (BFS):
-
-| Màn | Tên Màn Chơi | Kích Thước | Số Táo | Số bước tối ưu | Chuỗi bước di chuyển giải màn |
-|:---:|:---|:---:|:---:|:---:|:---|
-| **1** | First Bite | 8 x 5 | 1 | 8 | `L L U R R R R R` |
-| **2** | Across the Gap | 9 x 5 | 1 | 5 | `R R R R R` |
-| **3** | Safe Fall | 8 x 6 | 1 | 7 | `R R R U U R R` |
-| **4** | Spike Crossing | 9 x 6 | 1 | 5 | `R R R R R` |
-| **5** | Double Growth | 10 x 6 | 2 | 16 | `R R R R U L L L L U R R R R R R` |
-| **6** | Terraces | 9 x 6 | 1 | 9 | `U R R R U U R R R` |
-| **7** | The High Portal | 9 x 7 | 2 | 9 | `R U R R U U R R R` |
-| **8** | The S-Bend | 9 x 6 | 1 | 12 | `R R R R R D D L L L L L` |
-| **9** | The Pit | 9 x 6 | 1 | 7 | `R R R U U R D` |
-| **10** | Pillar Steps | 10 x 6 | 2 | 7 | `R R R R R R R` |
-| **11** | The Bridge | 11 x 6 | 2 | 10 | `U R R R R U R R R R` |
-| **12** | Two Level Pit | 9 x 7 | 2 | 12 | `R R R R R D D L U L D R` |
-| **13** | Spike Overpass | 11 x 6 | 1 | 7 | `R R R R R R R` |
-| **14** | Zig Zag | 10 x 7 | 2 | 14 | `D R R R D D R R R U U U R R` |
-| **15** | Grandmaster | 11 x 8 | 2 | 21 | `R R R R R R R U L L L L L L L U R R D D L` |
-
-*(Ký hiệu: `U` = Up, `D` = Down, `L` = Left, `R` = Right)*
-
----
-
-## 🎨 Thiết kế Đồ hoạ & Điểm nhấn UX
-- **Biểu cảm của Rắn:** Mắt rắn sinh động, con ngươi tự động liếc nhìn theo hướng di chuyển, má hồng dễ thương.
-- **Môi trường & Địa hình:** Khối đất khối đá màu sắc ấm áp, thảm cỏ xanh mượt viền phía trên bề mặt.
-- **Cổng xoáy không gian:** Hiệu ứng xoay tròn huyền ảo và phát sáng rực rỡ khi mở khóa.
-- **Quả táo:** Hiệu ứng nảy nhẹ (squash & stretch pulse) thu hút ánh nhìn.
+### 3. Chạy dự án iOS trên macOS (Xcode)
+1. Mở file dự án trong Xcode:
+   ```bash
+   open ios/SnakePuzzle.xcodeproj
+   ```
+2. Chọn thiết bị giả lập (ví dụ iPhone 15 Pro Max) hoặc cắm iPhone thật.
+3. Bấm tổ hợp phím **Cmd + R** để chạy game ở chế độ màn hình ngang tự động.

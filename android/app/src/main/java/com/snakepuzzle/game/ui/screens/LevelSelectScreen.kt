@@ -12,7 +12,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,14 +34,27 @@ fun LevelSelectScreen(
     onSelectLevel: (Level) -> Unit,
     onClose: () -> Unit
 ) {
+    val worlds = listOf(
+        "Green Meadows",
+        "Crystal Caverns",
+        "Sunken Ruins",
+        "Sky Citadel",
+        "Magma Core"
+    )
+
+    var selectedWorldIndex by remember { mutableIntStateOf(0) }
+    val currentWorldName = worlds[selectedWorldIndex]
+    val levelsInWorld = repository.levels.filter { it.world == currentWorldName }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Select Level",
+                        "🗺️ Choose Level (50 Levels)",
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        fontSize = 18.sp
                     )
                 },
                 actions = {
@@ -53,30 +66,51 @@ fun LevelSelectScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BgTop
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(BgTop, BgBottom)
+                        colors = listOf(MeadowSkyTop, MeadowSkyBottom)
                     )
                 )
         ) {
+            // World Tabs
+            ScrollableTabRow(
+                selectedTabIndex = selectedWorldIndex,
+                containerColor = Color.White,
+                edgePadding = 16.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                worlds.forEachIndexed { index, worldName ->
+                    Tab(
+                        selected = selectedWorldIndex == index,
+                        onClick = { selectedWorldIndex = index },
+                        text = {
+                            Text(
+                                "World ${index + 1}: $worldName",
+                                fontWeight = if (selectedWorldIndex == index) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 13.sp
+                            )
+                        }
+                    )
+                }
+            }
+
+            // Levels Grid
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 96.dp),
+                columns = GridCells.Adaptive(minSize = 100.dp),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(repository.levels) { level ->
+                items(levelsInWorld) { level ->
                     val unlocked = repository.isLevelUnlocked(level.id)
                     val stars = repository.getStars(level.id)
                     val best = repository.getBestMoves(level.id)
@@ -86,8 +120,8 @@ fun LevelSelectScreen(
                         color = if (unlocked) Color.White else Color.White.copy(alpha = 0.5f),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(105.dp)
-                            .shadow(if (unlocked) 4.dp else 1.dp, RoundedCornerShape(16.dp))
+                            .height(90.dp)
+                            .shadow(if (unlocked) 3.dp else 0.dp, RoundedCornerShape(16.dp))
                             .clip(RoundedCornerShape(16.dp))
                             .clickable(enabled = unlocked) {
                                 onSelectLevel(level)
@@ -96,14 +130,14 @@ fun LevelSelectScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(8.dp),
+                                .padding(6.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             if (unlocked) {
                                 Text(
                                     text = "${level.id}",
-                                    fontSize = 24.sp,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
                                     color = TextPrimary
                                 )
@@ -115,10 +149,8 @@ fun LevelSelectScreen(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                                     for (s in 1..3) {
                                         Icon(
                                             imageVector = Icons.Default.Star,
@@ -141,11 +173,11 @@ fun LevelSelectScreen(
                                     imageVector = Icons.Default.Lock,
                                     contentDescription = "Locked",
                                     tint = Color.Gray.copy(alpha = 0.5f),
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "Level ${level.id}",
+                                    text = "LV ${level.id}",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.Gray.copy(alpha = 0.7f)

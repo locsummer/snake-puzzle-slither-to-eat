@@ -1,5 +1,15 @@
 package com.snakepuzzle.game.model
 
+data class Particle(
+    val x: Float,
+    val y: Float,
+    val vx: Float,
+    val vy: Float,
+    val color: Long,
+    val alpha: Float = 1.0f,
+    val size: Float = 8f
+)
+
 sealed class GameStatus {
     object Playing : GameStatus()
     object Won : GameStatus()
@@ -11,7 +21,10 @@ data class GameState(
     val remainingApples: Set<Position>,
     val movesCount: Int = 0,
     val status: GameStatus = GameStatus.Playing,
-    val facingDirection: Direction = Direction.RIGHT
+    val facingDirection: Direction = Direction.RIGHT,
+    val noticeMessage: String? = null,
+    val isPortalUnlocked: Boolean = false,
+    val lastEatenPosition: Position? = null
 ) {
     val head: Position
         get() = snake.firstOrNull() ?: Position(0, 0)

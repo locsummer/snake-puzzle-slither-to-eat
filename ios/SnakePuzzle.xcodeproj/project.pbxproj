@@ -23,6 +23,10 @@
 		A100001B2C00000100000001 /* DefeatModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001C2C00000100000001 /* DefeatModalView.swift */; };
 		A100001D2C00000100000001 /* LevelSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100001E2C00000100000001 /* LevelSelectView.swift */; };
 		A100001F2C00000100000001 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000202C00000100000001 /* GameView.swift */; };
+		A10000412C00000100000001 /* SnakeSkin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000402C00000100000001 /* SnakeSkin.swift */; };
+		A10000432C00000100000001 /* LandscapeGameHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000422C00000100000001 /* LandscapeGameHUD.swift */; };
+		A10000452C00000100000001 /* SettingsModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000442C00000100000001 /* SettingsModalView.swift */; };
+		A10000472C00000100000001 /* SkinSelectModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000462C00000100000001 /* SkinSelectModalView.swift */; };
 		A10000212C00000100000001 /* levels.json in Resources */ = {isa = PBXBuildFile; fileRef = A10000222C00000100000001 /* levels.json */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +49,10 @@
 		A100001C2C00000100000001 /* DefeatModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefeatModalView.swift; sourceTree = "<group>"; };
 		A100001E2C00000100000001 /* LevelSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelSelectView.swift; sourceTree = "<group>"; };
 		A10000202C00000100000001 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		A10000402C00000100000001 /* SnakeSkin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakeSkin.swift; sourceTree = "<group>"; };
+		A10000422C00000100000001 /* LandscapeGameHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandscapeGameHUD.swift; sourceTree = "<group>"; };
+		A10000442C00000100000001 /* SettingsModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModalView.swift; sourceTree = "<group>"; };
+		A10000462C00000100000001 /* SkinSelectModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinSelectModalView.swift; sourceTree = "<group>"; };
 		A10000222C00000100000001 /* levels.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = levels.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -105,6 +113,7 @@
 				A10000082C00000100000001 /* CellType.swift */,
 				A100000A2C00000100000001 /* Level.swift */,
 				A100000C2C00000100000001 /* GameState.swift */,
+				A10000402C00000100000001 /* SnakeSkin.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -136,6 +145,9 @@
 				A100001C2C00000100000001 /* DefeatModalView.swift */,
 				A100001E2C00000100000001 /* LevelSelectView.swift */,
 				A10000202C00000100000001 /* GameView.swift */,
+				A10000422C00000100000001 /* LandscapeGameHUD.swift */,
+				A10000442C00000100000001 /* SettingsModalView.swift */,
+				A10000462C00000100000001 /* SkinSelectModalView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -233,6 +245,10 @@
 				A100001B2C00000100000001 /* DefeatModalView.swift in Sources */,
 				A100001D2C00000100000001 /* LevelSelectView.swift in Sources */,
 				A100001F2C00000100000001 /* GameView.swift in Sources */,
+				A10000412C00000100000001 /* SnakeSkin.swift in Sources */,
+				A10000432C00000100000001 /* LandscapeGameHUD.swift in Sources */,
+				A10000452C00000100000001 /* SettingsModalView.swift in Sources */,
+				A10000472C00000100000001 /* SkinSelectModalView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

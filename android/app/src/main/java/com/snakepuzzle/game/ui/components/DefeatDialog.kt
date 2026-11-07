@@ -12,7 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.snakepuzzle.game.ui.theme.SpikeTip
+import com.snakepuzzle.game.ui.theme.SpikePoint
 import com.snakepuzzle.game.ui.theme.TextPrimary
 import com.snakepuzzle.game.ui.theme.TextSecondary
 
@@ -29,19 +29,19 @@ fun DefeatDialog(
             shape = RoundedCornerShape(24.dp),
             color = Color.White,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .width(400.dp)
+                .padding(12.dp)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
                     text = "💥 OOPS!",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Black,
-                    color = SpikeTip
+                    color = SpikePoint
                 )
 
                 Text(
@@ -52,34 +52,45 @@ fun DefeatDialog(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
-                if (canUndo) {
-                    Button(
-                        onClick = onUndo,
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2673E0)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-                        Text("Undo Move", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                Button(
-                    onClick = onRestart,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0F2F5)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("Try Again", fontWeight = FontWeight.Bold, color = TextPrimary)
-                }
+                    if (canUndo) {
+                        Button(
+                            onClick = onUndo,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3498DB)),
+                            modifier = Modifier
+                                .weight(1.2f)
+                                .height(46.dp)
+                        ) {
+                            Text("Undo Move", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
 
-                TextButton(onClick = onSelectLevel) {
-                    Text("Choose Level", fontWeight = FontWeight.SemiBold, color = TextSecondary)
+                    Button(
+                        onClick = onRestart,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F5F9)),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(46.dp)
+                    ) {
+                        Text("Try Again", fontWeight = FontWeight.Bold, color = TextPrimary)
+                    }
+
+                    OutlinedButton(
+                        onClick = onSelectLevel,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(46.dp)
+                    ) {
+                        Text("Levels", fontWeight = FontWeight.Bold, color = TextSecondary)
+                    }
                 }
             }
         }

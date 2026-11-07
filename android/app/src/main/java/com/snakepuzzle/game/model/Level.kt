@@ -3,11 +3,13 @@ package com.snakepuzzle.game.model
 data class Level(
     val id: Int,
     val name: String,
+    val world: String = "Green Meadows",
     val width: Int,
     val height: Int,
     val grid: List<String>,
     val snake: List<List<Int>>,
-    val targetApples: Int
+    val targetApples: Int,
+    val optimalMoves: Int = 10
 ) {
     val snakePositions: List<Position>
         get() = snake.map { Position(it[0], it[1]) }

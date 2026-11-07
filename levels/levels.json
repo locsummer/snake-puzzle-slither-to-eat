@@ -1,7 +1,7 @@
 [
   {
-    "id": 1,
     "name": "First Bite",
+    "world": "Green Meadows",
     "width": 8,
     "height": 5,
     "grid": [
@@ -11,12 +11,51 @@
       "SSSSSSSS",
       "SSSSSSSS"
     ],
-    "snake": [[3, 2], [4, 2]],
-    "targetApples": 1
+    "snake": [
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 1,
+    "optimalMoves": 8,
+    "solution": "L L U R R R R R"
   },
   {
+    "name": "Reaching Out",
+    "world": "Green Meadows",
+    "width": 8,
+    "height": 5,
+    "grid": [
+      "........",
+      "........",
+      "..A...O.",
+      "SSSSSSSS",
+      "SSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
     "id": 2,
-    "name": "Across the Gap",
+    "optimalMoves": 5,
+    "solution": "R R R R R"
+  },
+  {
+    "name": "First Gap",
+    "world": "Green Meadows",
     "width": 9,
     "height": 5,
     "grid": [
@@ -26,12 +65,78 @@
       "SSSS.SSSS",
       "SSSS.SSSS"
     ],
-    "snake": [[1, 2], [0, 2]],
-    "targetApples": 1
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 3,
+    "optimalMoves": 5,
+    "solution": "R R R R R"
   },
   {
-    "id": 3,
-    "name": "Safe Fall",
+    "name": "Canyon Run",
+    "world": "Green Meadows",
+    "width": 10,
+    "height": 5,
+    "grid": [
+      "..........",
+      "..........",
+      "..A....O..",
+      "SSSS..SSSS",
+      "SSSS..SSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 4,
+    "optimalMoves": 6,
+    "solution": "R R R R R R"
+  },
+  {
+    "name": "Canyon Hop",
+    "world": "Green Meadows",
+    "width": 9,
+    "height": 5,
+    "grid": [
+      ".........",
+      "....A....",
+      "SSS...SSS",
+      "SSS.O.SSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 5,
+    "optimalMoves": 4,
+    "solution": "R R R D"
+  },
+  {
+    "name": "Safe Landing",
+    "world": "Green Meadows",
     "width": 8,
     "height": 6,
     "grid": [
@@ -42,12 +147,24 @@
       "SS....OS",
       "SSSSSSSS"
     ],
-    "snake": [[1, 0], [0, 0]],
-    "targetApples": 1
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "targetApples": 1,
+    "id": 6,
+    "optimalMoves": 7,
+    "solution": "R R R U U R R"
   },
   {
-    "id": 4,
-    "name": "Spike Crossing",
+    "name": "Spike Introduction",
+    "world": "Green Meadows",
     "width": 9,
     "height": 6,
     "grid": [
@@ -58,28 +175,52 @@
       "SSSSXSSSS",
       "SSSSSSSSSS"
     ],
-    "snake": [[1, 2], [0, 2]],
-    "targetApples": 1
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 7,
+    "optimalMoves": 5,
+    "solution": "R R R R R"
   },
   {
-    "id": 5,
-    "name": "Double Growth",
+    "name": "Spike Valley",
+    "world": "Green Meadows",
     "width": 10,
     "height": 6,
     "grid": [
       "..........",
       "..........",
-      ".A..A..O..",
-      "SSS..SSSSS",
-      "SSSXXSSSSS",
+      "..A....O..",
+      "SSSS..SSSS",
+      "SSSSXXSSSS",
       "SSSSSSSSSS"
     ],
-    "snake": [[1, 2], [0, 2]],
-    "targetApples": 2
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 8,
+    "optimalMoves": 6,
+    "solution": "R R R R R R"
   },
   {
-    "id": 6,
-    "name": "Terraces",
+    "name": "Step Up",
+    "world": "Green Meadows",
     "width": 9,
     "height": 6,
     "grid": [
@@ -90,12 +231,220 @@
       "SSSSSSSSS",
       "SSSSSSSSS"
     ],
-    "snake": [[1, 3], [0, 3]],
-    "targetApples": 1
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 1,
+    "id": 9,
+    "optimalMoves": 9,
+    "solution": "U R R R U U R R R"
   },
   {
-    "id": 7,
-    "name": "The High Portal",
+    "name": "Chamber Drop",
+    "world": "Green Meadows",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      ".........",
+      "SS.....SS",
+      "SS..A..SS",
+      "SS.....SS",
+      "SS...O.SS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "targetApples": 1,
+    "id": 10,
+    "optimalMoves": 7,
+    "solution": "R R R U U R D"
+  },
+  {
+    "name": "The Tunnel",
+    "world": "Crystal Caverns",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      "SSSSSSSSS",
+      "S....A..S",
+      "S.SSSSS.S",
+      "S.O.....S",
+      "SSSSSSSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        2,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 11,
+    "optimalMoves": 12,
+    "solution": "R R R R R D D L L L L L"
+  },
+  {
+    "name": "Low Overpass",
+    "world": "Crystal Caverns",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "....A...O..",
+      "SSSS..SSSSS",
+      "SSSS..SSSSS",
+      "SSSSXXSSSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 12,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Meadow Gate",
+    "world": "Crystal Caverns",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      "..A...A.O.",
+      "SSSS.SSSSS",
+      "SSSS.SSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 2,
+    "id": 13,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Double Growth",
+    "world": "Crystal Caverns",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      ".A..A..O..",
+      "SSS..SSSSS",
+      "SSSXXSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 2,
+    "id": 14,
+    "optimalMoves": 16,
+    "solution": "R R R R U L L L L U R R R R R R"
+  },
+  {
+    "name": "Cavern Pillars",
+    "world": "Crystal Caverns",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      ".A..A..O..",
+      "SS..S..SSS",
+      "SSXXSXXSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 2,
+    "id": 15,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Terrace Two",
+    "world": "Crystal Caverns",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      "......OS.",
+      "....SSSS.",
+      "..A.SSSS.",
+      "SSSSSSSS.",
+      "SSSSSSSS.",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 16,
+    "optimalMoves": 7,
+    "solution": "R R U U R R R"
+  },
+  {
+    "name": "High Portal Climb",
+    "world": "Crystal Caverns",
     "width": 9,
     "height": 7,
     "grid": [
@@ -107,60 +456,24 @@
       "SSS...SS.",
       "SSSSSSSSS"
     ],
-    "snake": [[1, 3], [0, 3]],
-    "targetApples": 2
-  },
-  {
-    "id": 8,
-    "name": "The S-Bend",
-    "width": 9,
-    "height": 6,
-    "grid": [
-      "SSSSSSSSS",
-      "S....A..S",
-      "S.SSSSS.S",
-      "S.O.....S",
-      "SSSSSSSSS",
-      "SSSSSSSSS"
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
     ],
-    "snake": [[2, 1], [1, 1]],
-    "targetApples": 1
+    "targetApples": 2,
+    "id": 17,
+    "optimalMoves": 9,
+    "solution": "R U R R U U R R R"
   },
   {
-    "id": 9,
-    "name": "The Pit",
-    "width": 9,
-    "height": 6,
-    "grid": [
-      ".........",
-      "SS.....SS",
-      "SS..A..SS",
-      "SS.....SS",
-      "SS...O.SS",
-      "SSSSSSSSS"
-    ],
-    "snake": [[1, 0], [0, 0]],
-    "targetApples": 1
-  },
-  {
-    "id": 10,
-    "name": "Pillar Steps",
-    "width": 10,
-    "height": 6,
-    "grid": [
-      "..........",
-      "..........",
-      ".A..A..O..",
-      "SS..S..SSS",
-      "SSXXSXXSSS",
-      "SSSSSSSSSS"
-    ],
-    "snake": [[0, 2], [0, 3]],
-    "targetApples": 2
-  },
-  {
-    "id": 11,
-    "name": "The Bridge",
+    "name": "The Chasm Bridge",
+    "world": "Crystal Caverns",
     "width": 11,
     "height": 6,
     "grid": [
@@ -171,12 +484,24 @@
       "SSSXXXXXXSS",
       "SSSSSSSSSSS"
     ],
-    "snake": [[1, 2], [0, 2]],
-    "targetApples": 2
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 2,
+    "id": 18,
+    "optimalMoves": 10,
+    "solution": "U R R R R U R R R R"
   },
   {
-    "id": 12,
-    "name": "Two Level Pit",
+    "name": "Two-Tier Vault",
+    "world": "Crystal Caverns",
     "width": 9,
     "height": 7,
     "grid": [
@@ -188,28 +513,24 @@
       "SS...O.SS",
       "SSSSSSSSS"
     ],
-    "snake": [[1, 0], [0, 0]],
-    "targetApples": 2
-  },
-  {
-    "id": 13,
-    "name": "Spike Overpass",
-    "width": 11,
-    "height": 6,
-    "grid": [
-      "...........",
-      "....A...O..",
-      "SSSS..SSSSS",
-      "SSSS..SSSSS",
-      "SSSSXXSSSSS",
-      "SSSSSSSSSSS"
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
     ],
-    "snake": [[1, 1], [0, 1]],
-    "targetApples": 1
+    "targetApples": 2,
+    "id": 19,
+    "optimalMoves": 12,
+    "solution": "R R R R R D D L U L D R"
   },
   {
-    "id": 14,
-    "name": "Zig Zag",
+    "name": "Crystal Zig-Zag",
+    "world": "Crystal Caverns",
     "width": 10,
     "height": 7,
     "grid": [
@@ -221,12 +542,278 @@
       "SSSSSSSSSS",
       "SSSSSSSSSS"
     ],
-    "snake": [[1, 0], [0, 0]],
-    "targetApples": 2
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "targetApples": 2,
+    "id": 20,
+    "optimalMoves": 14,
+    "solution": "D R R R D D R R R U U U R R"
   },
   {
-    "id": 15,
-    "name": "Grandmaster",
+    "name": "Narrow Ledge",
+    "world": "Sunken Ruins",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "...A...O..",
+      "SSSS.SSSSS",
+      "SSSS.SSSSS",
+      "SSSS.SSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 21,
+    "optimalMoves": 6,
+    "solution": "R R R R R R"
+  },
+  {
+    "name": "Ruins Entrance",
+    "world": "Sunken Ruins",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "....A...O.",
+      "SSS..SS.SS",
+      "SSS..SS.SS",
+      "SSSXXSS.SS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 22,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Dual Island",
+    "world": "Sunken Ruins",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..A....O..",
+      "SSS....SSS",
+      "SSS.SS.SSS",
+      "SSSXXXXSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 23,
+    "optimalMoves": 7,
+    "solution": "R R R R U R R"
+  },
+  {
+    "name": "The Trench",
+    "world": "Sunken Ruins",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      ".........",
+      "SS.....SS",
+      "SS.A.O.SS",
+      "SSSS.SSSS",
+      "SSSS.SSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 24,
+    "optimalMoves": 5,
+    "solution": "R D R R R"
+  },
+  {
+    "name": "Sunken Terrace",
+    "world": "Sunken Ruins",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".......OS",
+      "....A.SSS",
+      "...SSSSSS",
+      ".A.SSSSSS",
+      "SSSSSSSSS",
+      "SSSSSSSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 2,
+    "id": 25,
+    "optimalMoves": 10,
+    "solution": "D R U U R R U R R R"
+  },
+  {
+    "name": "Aqueduct Leap",
+    "world": "Sunken Ruins",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "...A...A.O.",
+      "SSSS..SSSSS",
+      "SSSS..SSSSS",
+      "SSSSXXSSSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 26,
+    "optimalMoves": 8,
+    "solution": "R R R R R R R R"
+  },
+  {
+    "name": "Flooded Shaft",
+    "world": "Sunken Ruins",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".........",
+      "SS.....SS",
+      "SS..A..SS",
+      "SS.....SS",
+      "SS.SSS.SS",
+      "SS.A.O.SS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "targetApples": 2,
+    "id": 27,
+    "optimalMoves": 11,
+    "solution": "R R R U L L D D R R R"
+  },
+  {
+    "name": "Ancient Pass",
+    "world": "Sunken Ruins",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      ".A...A..O.",
+      "SSSS..SSSS",
+      "SSSS..SSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 2,
+    "id": 28,
+    "optimalMoves": 13,
+    "solution": "R R U L L U R R R R R R R"
+  },
+  {
+    "name": "Twin Pillars Leap",
+    "world": "Sunken Ruins",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "..A....A.O.",
+      "SS..S..SSSS",
+      "SS..S..SSSS",
+      "SSXXSXXSSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 29,
+    "optimalMoves": 8,
+    "solution": "R R R R R R R R"
+  },
+  {
+    "name": "Grand Vault",
+    "world": "Sunken Ruins",
     "width": 11,
     "height": 8,
     "grid": [
@@ -239,7 +826,590 @@
       "SSS...S.SSS",
       "SSSSSSSSSSS"
     ],
-    "snake": [[1, 1], [0, 1]],
-    "targetApples": 2
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 30,
+    "optimalMoves": 21,
+    "solution": "R R R R R R R U L L L L L L L U R R D D L"
+  },
+  {
+    "name": "Floating Steps",
+    "world": "Sky Citadel",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "........OS",
+      ".....SSSSS",
+      "...A.SSSSS",
+      ".SSSSSSSSS",
+      "SSSSSSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 31,
+    "optimalMoves": 9,
+    "solution": "R R R U U R R R R"
+  },
+  {
+    "name": "Skywalk",
+    "world": "Sky Citadel",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..A...A.O.",
+      "SSS..SSSSS",
+      "SSS..SSSSS",
+      "SSSXXSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 32,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Citadel Terrace",
+    "world": "Sky Citadel",
+    "width": 11,
+    "height": 7,
+    "grid": [
+      ".........OS",
+      "......SSSSS",
+      "....A.SSSSS",
+      "..SSSSSSSSS",
+      ".SSSSSSSSSS",
+      "SSSSSSSSSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 1,
+    "id": 33,
+    "optimalMoves": 11,
+    "solution": "U R R R R U U R R R R"
+  },
+  {
+    "name": "Spike Ridge",
+    "world": "Sky Citadel",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "...A...A.O.",
+      "SSSS..SSSSS",
+      "SSSS..SSSSS",
+      "SSSSXXSSSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 34,
+    "optimalMoves": 8,
+    "solution": "R R R R R R R R"
+  },
+  {
+    "name": "The High Tower",
+    "world": "Sky Citadel",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".......O.",
+      ".....SSSS",
+      "...A.SSSS",
+      ".A.S.SSSS",
+      "SSSS.SSSS",
+      "SSSS.SSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 2,
+    "id": 35,
+    "optimalMoves": 16,
+    "solution": "R U R U L D L U R R U U R R R R"
+  },
+  {
+    "name": "High Citadel",
+    "world": "Sky Citadel",
+    "width": 10,
+    "height": 7,
+    "grid": [
+      "........O.",
+      "......SSSS",
+      "....A.SSSS",
+      "..A.S.SSSS",
+      "SSS.S.SSSS",
+      "SSS...SSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 2,
+    "id": 36,
+    "optimalMoves": 10,
+    "solution": "R U R R U U R R R R"
+  },
+  {
+    "name": "Core Chamber",
+    "world": "Sky Citadel",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "SSSSSSSSSS",
+      "S..A...O.S",
+      "S.SSSSSS.S",
+      "S........S",
+      "SSSSSSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 37,
+    "optimalMoves": 6,
+    "solution": "R R R R R R"
+  },
+  {
+    "name": "Terrace Three",
+    "world": "Sky Citadel",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "........OS",
+      "......SSSS",
+      "....A.SSSS",
+      "..SSSSSSSS",
+      "SSSSSSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 1,
+    "id": 38,
+    "optimalMoves": 9,
+    "solution": "R R R R U U R R R"
+  },
+  {
+    "name": "Final Ascendance",
+    "world": "Sky Citadel",
+    "width": 11,
+    "height": 7,
+    "grid": [
+      ".........OS",
+      ".......SSSS",
+      ".....A.SSSS",
+      "...A.S.SSSS",
+      ".SSS.S.SSSS",
+      "SSSS.S.SSSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 2,
+    "id": 39,
+    "optimalMoves": 11,
+    "solution": "R R U R R U U R R R R"
+  },
+  {
+    "name": "Citadel Core",
+    "world": "Sky Citadel",
+    "width": 11,
+    "height": 8,
+    "grid": [
+      "...........",
+      ".A......A..",
+      "SSS.SSS.SSS",
+      "S...S.S...S",
+      "S.O.S.S...S",
+      "SSS.S.S.SSS",
+      "SSS...S.SSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 40,
+    "optimalMoves": 21,
+    "solution": "R R R R R R R U L L L L L L L U R R D D L"
+  },
+  {
+    "name": "Magma Gate",
+    "world": "Magma Core",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      "..A...A.O.",
+      "SSSS.SSSSS",
+      "SSSSXSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "targetApples": 2,
+    "id": 41,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Lava Leap",
+    "world": "Magma Core",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "....A...O.",
+      "SSSS..SSSS",
+      "SSSS..SSSS",
+      "SSSSXXSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 42,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Molten Trench",
+    "world": "Magma Core",
+    "width": 11,
+    "height": 6,
+    "grid": [
+      "...........",
+      "..A....A...",
+      "SSSS..SS.OS",
+      "SSSS..SS.SS",
+      "SSSSXXSS.SS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 43,
+    "optimalMoves": 9,
+    "solution": "R R R R R R R R D"
+  },
+  {
+    "name": "Inferno Steps",
+    "world": "Magma Core",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      ".......OS",
+      ".....SSSS",
+      "...A.SSSS",
+      ".SSSSSSSS",
+      "SSSSSSSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 1,
+    "id": 44,
+    "optimalMoves": 9,
+    "solution": "U R R R U U R R R"
+  },
+  {
+    "name": "Brimstone Well",
+    "world": "Magma Core",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".........",
+      "SS.....SS",
+      "SS..A..SS",
+      "SS.SSS.SS",
+      "SS..A..SS",
+      "SS...O.SS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "targetApples": 2,
+    "id": 45,
+    "optimalMoves": 12,
+    "solution": "R R R R R D D L U L D R"
+  },
+  {
+    "name": "Volcanic Corridor",
+    "world": "Magma Core",
+    "width": 9,
+    "height": 6,
+    "grid": [
+      "SSSSSSSSS",
+      "S....A..S",
+      "S.SSSSS.S",
+      "S.O.....S",
+      "SSSSSSSSS",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        2,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "targetApples": 1,
+    "id": 46,
+    "optimalMoves": 12,
+    "solution": "R R R R R D D L L L L L"
+  },
+  {
+    "name": "Obsidian Pillar",
+    "world": "Magma Core",
+    "width": 10,
+    "height": 6,
+    "grid": [
+      "..........",
+      "..........",
+      ".A..A..O..",
+      "SS..S..SSS",
+      "SSXXSXXSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 2,
+    "id": 47,
+    "optimalMoves": 7,
+    "solution": "R R R R R R R"
+  },
+  {
+    "name": "Lava Zig-Zag",
+    "world": "Magma Core",
+    "width": 10,
+    "height": 7,
+    "grid": [
+      "..........",
+      ".A...SS..O",
+      "SSSS.SS.SS",
+      "SSSS....SS",
+      "SSSS.A..SS",
+      "SSSSSSSSSS",
+      "SSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "targetApples": 2,
+    "id": 48,
+    "optimalMoves": 14,
+    "solution": "D R R R D D R R R U U U R R"
+  },
+  {
+    "name": "Dragon Perch",
+    "world": "Magma Core",
+    "width": 9,
+    "height": 7,
+    "grid": [
+      ".......O.",
+      "......SS.",
+      "....A.SS.",
+      "..A.S.SS.",
+      "SSS.S.SS.",
+      "SSS...SS.",
+      "SSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        3
+      ],
+      [
+        0,
+        3
+      ]
+    ],
+    "targetApples": 2,
+    "id": 49,
+    "optimalMoves": 9,
+    "solution": "R U R R U U R R R"
+  },
+  {
+    "name": "The Core Final",
+    "world": "Magma Core",
+    "width": 11,
+    "height": 8,
+    "grid": [
+      "...........",
+      ".A......A..",
+      "SSS.SSS.SSS",
+      "S...S.S...S",
+      "S.O.S.S...S",
+      "SSS.S.S.SSS",
+      "SSS...S.SSS",
+      "SSSSSSSSSSS"
+    ],
+    "snake": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "targetApples": 2,
+    "id": 50,
+    "optimalMoves": 21,
+    "solution": "R R R R R R R U L L L L L L L U R R D D L"
   }
 ]

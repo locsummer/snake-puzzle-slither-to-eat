@@ -1,5 +1,14 @@
 import Foundation
 
+public enum MoveResult {
+    case blocked
+    case moved
+    case appleEaten(position: Position, portalJustOpened: Bool)
+    case portalLockedNotice
+    case levelWon
+    case levelLost(reason: String)
+}
+
 public final class SnakePuzzleEngine: ObservableObject {
     public let level: Level
     @Published public private(set) var currentState: GameState
@@ -29,12 +38,16 @@ public final class SnakePuzzleEngine: ObservableObject {
             else if dy < 0 { initialFacing = .up }
         }
 
+        let isUnlocked = initialApples.isEmpty
+
         self.currentState = GameState(
             snake: initialSnake,
             remainingApples: initialApples,
             movesCount: 0,
             status: .playing,
-            facingDirection: initialFacing
+            facingDirection: initialFacing,
+            noticeMessage: isUnlocked ? "Portal is open! Reach the vortex!" : nil,
+            isPortalUnlocked: isUnlocked
         )
     }
 
@@ -52,12 +65,15 @@ public final class SnakePuzzleEngine: ObservableObject {
             else if dy > 0 { initialFacing = .down }
             else if dy < 0 { initialFacing = .up }
         }
+        let isUnlocked = initialApples.isEmpty
         currentState = GameState(
             snake: initialSnake,
             remainingApples: initialApples,
             movesCount: 0,
             status: .playing,
-            facingDirection: initialFacing
+            facingDirection: initialFacing,
+            noticeMessage: isUnlocked ? "Portal is open! Reach the vortex!" : nil,
+            isPortalUnlocked: isUnlocked
         )
     }
 
@@ -69,35 +85,35 @@ public final class SnakePuzzleEngine: ObservableObject {
     }
 
     @discardableResult
-    public func move(in direction: Direction) -> Bool {
-        guard currentState.status == .playing else { return false }
+    public func move(in direction: Direction) -> MoveResult {
+        guard currentState.status == .playing else { return .blocked }
 
         let currentSnake = currentState.snake
-        guard let head = currentSnake.first else { return false }
+        guard let head = currentSnake.first else { return .blocked }
 
         let newHead = head + direction.delta
 
         // 1. Cannot reverse directly into neck
         if currentSnake.count > 1 && newHead == currentSnake[1] {
-            return false
+            return .blocked
         }
 
-        // 2. Out of bounds
+        // 2. Out of bounds check
         if newHead.x < 0 || newHead.x >= level.width || newHead.y < 0 || newHead.y >= level.height {
-            return false
+            return .blocked
         }
 
         // 3. Solid wall collision
         if solidPositions.contains(newHead) {
-            return false
+            return .blocked
         }
 
         let isEatingApple = currentState.remainingApples.contains(newHead)
 
-        // 4. Body collision check
+        // 4. Body collision check: if not eating apple, the tail moves away
         let occupied = isEatingApple ? currentSnake : Array(currentSnake.dropLast())
         if occupied.contains(newHead) {
-            return false
+            return .blocked
         }
 
         // Save state for undo
@@ -113,87 +129,111 @@ public final class SnakePuzzleEngine: ObservableObject {
         }
 
         var nextApples = currentState.remainingApples
+        var appleEatenThisTurn = false
         if isEatingApple {
             nextApples.remove(newHead)
+            appleEatenThisTurn = true
+        }
+
+        let isPortalNowUnlocked = nextApples.isEmpty
+        let portalJustOpened = appleEatenThisTurn && isPortalNowUnlocked && !currentState.isPortalUnlocked
+
+        var notice: String? = nil
+        if portalJustOpened {
+            notice = "✨ PORTAL OPEN! Slither to the vortex!"
         }
 
         var nextStatus: GameStatus = .playing
 
+        // Check if head moved onto portal
+        let reachedPortal = (portalPosition != nil && newHead == portalPosition)
+        if reachedPortal {
+            if isPortalNowUnlocked {
+                nextStatus = .won
+            } else {
+                notice = "🔒 Portal locked! Collect all apples first!"
+            }
+        }
+
         // Check if head hit spike directly
-        if spikePositions.contains(newHead) {
-            currentState = GameState(
-                snake: nextSnake,
-                remainingApples: nextApples,
-                movesCount: currentState.movesCount + 1,
-                status: .lost(reason: "Ouch! You hit the sharp spikes!"),
-                facingDirection: direction
-            )
-            return true
+        if spikePositions.contains(newHead) && nextStatus != .won {
+            nextStatus = .lost(reason: "Ouch! You hit the sharp spikes!")
         }
 
         // Gravity loop
-        var falling = true
-        while falling {
-            // Check spike collision
-            for seg in nextSnake {
-                if spikePositions.contains(seg) {
+        var resolvedSnake: [Position] = nextSnake
+        if nextStatus == .playing {
+            var falling = true
+            while falling {
+                if resolvedSnake.contains(where: { spikePositions.contains($0) }) {
                     nextStatus = .lost(reason: "Ouch! You fell into spikes!")
                     falling = false
                     break
                 }
-            }
-            if nextStatus != .playing { break }
 
-            // Check support: Is at least one segment resting on a solid block directly underneath?
-            var supported = false
-            for seg in nextSnake {
-                let below = Position(x: seg.x, y: seg.y + 1)
-                if solidPositions.contains(below) {
-                    supported = true
-                    break
+                // Check support
+                var supported = false
+                for seg in resolvedSnake {
+                    let below = Position(x: seg.x, y: seg.y + 1)
+                    if solidPositions.contains(below) {
+                        supported = true
+                        break
+                    }
                 }
-            }
 
-            if supported {
-                falling = false
-            } else {
-                // Drop 1 cell down
-                nextSnake = nextSnake.map { Position(x: $0.x, y: $0.y + 1) }
-
-                // Check out of bounds / abyss
-                if nextSnake.contains(where: { $0.y >= level.height }) {
-                    nextStatus = .lost(reason: "You fell into the infinite abyss!")
+                if supported {
                     falling = false
-                    break
+                } else {
+                    resolvedSnake = resolvedSnake.map { Position(x: $0.x, y: $0.y + 1) }
+
+                    if let portal = portalPosition, resolvedSnake.first == portal && isPortalNowUnlocked {
+                        nextStatus = .won
+                        falling = false
+                        break
+                    }
+
+                    if resolvedSnake.contains(where: { $0.y >= level.height }) {
+                        nextStatus = .lost(reason: "You fell into the infinite abyss!")
+                        falling = false
+                        break
+                    }
                 }
             }
         }
 
-        // Check spike collision after settling
+        // Settle check
         if nextStatus == .playing {
-            for seg in nextSnake {
-                if spikePositions.contains(seg) {
-                    nextStatus = .lost(reason: "Ouch! You landed on spikes!")
-                    break
-                }
-            }
-        }
-
-        // Win check: Head at portal and all apples collected
-        if nextStatus == .playing, let portal = portalPosition {
-            if nextApples.isEmpty && nextSnake.first == portal {
+            if resolvedSnake.contains(where: { spikePositions.contains($0) }) {
+                nextStatus = .lost(reason: "Ouch! You landed on spikes!")
+            } else if let portal = portalPosition, resolvedSnake.first == portal && isPortalNowUnlocked {
                 nextStatus = .won
             }
         }
 
         currentState = GameState(
-            snake: nextSnake,
+            snake: resolvedSnake,
             remainingApples: nextApples,
             movesCount: currentState.movesCount + 1,
             status: nextStatus,
-            facingDirection: direction
+            facingDirection: direction,
+            noticeMessage: notice,
+            isPortalUnlocked: isPortalNowUnlocked,
+            lastEatenPosition: appleEatenThisTurn ? newHead : nil
         )
 
-        return true
+        switch nextStatus {
+        case .won:
+            return .levelWon
+        case .lost(let reason):
+            return .levelLost(reason: reason)
+        case .playing:
+            if appleEatenThisTurn {
+                return .appleEaten(position: newHead, portalJustOpened: portalJustOpened)
+            } else if reachedPortal && !isPortalNowUnlocked {
+                return .portalLockedNotice
+            } else {
+                return .moved
+            }
+        }
     }
 }
