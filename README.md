@@ -1,5 +1,14 @@
 # 🐍 Snake Puzzle: Slither to Eat! (Landscape Edition)
 
+[![Download APK](https://img.shields.io/badge/Download-APK%20(Direct)-brightgreen?style=for-the-badge&logo=android)](https://github.com/locsummer/snake-puzzle-slither-to-eat/raw/main/snake-puzzle.apk)
+[![Platform - Android](https://img.shields.io/badge/Platform-Android%20Kotlin-blue?style=for-the-badge&logo=kotlin)](android/)
+[![Platform - iOS](https://img.shields.io/badge/Platform-iOS%20Swift-orange?style=for-the-badge&logo=swift)](ios/)
+[![Levels - 50 Verified](https://img.shields.io/badge/Levels-50%20(BFS%20Verified)-purple?style=for-the-badge)](levels/)
+
+> 📥 **Link tải file APK trực tiếp:** [**Click vào đây để tải `snake-puzzle.apk`**](https://github.com/locsummer/snake-puzzle-slither-to-eat/raw/main/snake-puzzle.apk)
+
+---
+
 Một phiên bản tái hiện hoàn chỉnh, nâng cấp toàn diện và tối ưu hóa cao cấp của tựa game giải đố nổi tiếng **Snake Puzzle: Slither to Eat** (lấy cảm hứng từ cơ chế vật lý khối cứng của *Apple Worm / Snakebird*), được xây dựng chuẩn Native song song cho cả hai nền tảng:
 
 - 🍏 **iOS:** Viết 100% bằng **Swift** & **SwiftUI** (Khóa cứng xoay ngang **Landscape**, hỗ trợ iOS 15.0+).
