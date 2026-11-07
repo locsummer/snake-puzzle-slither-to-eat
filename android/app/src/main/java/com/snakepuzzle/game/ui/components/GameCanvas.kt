@@ -233,8 +233,8 @@ private fun DrawScope.drawApple(cx: Float, cy: Float, cellSize: Float, scale: Fl
     // Leaf
     val leafPath = Path().apply {
         moveTo(cx, cy - r - cellSize * 0.04f)
-        quadraticTo(cx + cellSize * 0.16f, cy - r - cellSize * 0.14f, cx + cellSize * 0.2f, cy - r - cellSize * 0.06f)
-        quadraticTo(cx + cellSize * 0.10f, cy - r - cellSize * 0.02f, cx, cy - r - cellSize * 0.04f)
+        quadraticBezierTo(cx + cellSize * 0.16f, cy - r - cellSize * 0.14f, cx + cellSize * 0.2f, cy - r - cellSize * 0.06f)
+        quadraticBezierTo(cx + cellSize * 0.10f, cy - r - cellSize * 0.02f, cx, cy - r - cellSize * 0.04f)
         close()
     }
     drawPath(path = leafPath, color = AppleLeaf)
