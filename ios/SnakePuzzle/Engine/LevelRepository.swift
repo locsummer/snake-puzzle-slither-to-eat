@@ -6,6 +6,7 @@ public final class LevelRepository: ObservableObject {
     @Published public private(set) var levels: [Level] = []
     @Published public private(set) var unlockedLevelMax: Int = 1
     @Published public private(set) var highScore: Int = 0
+    @Published public private(set) var scoreboard: [ScoreEntry] = []
     @Published public var selectedSkin: SnakeSkin = .emerald {
         didSet {
             UserDefaults.standard.set(selectedSkin.rawValue, forKey: skinKey)
@@ -23,6 +24,7 @@ public final class LevelRepository: ObservableObject {
     private let skinKey = "SnakePuzzle_Skin"
     private let dpadKey = "SnakePuzzle_DpadLeft"
     private let highScoreKey = "SnakePuzzle_HighScore"
+    private let scoreboardKey = "SnakePuzzle_Scoreboard_v1"
 
     public init() {
         self.unlockedLevelMax = max(1, UserDefaults.standard.integer(forKey: unlockedKey))
@@ -30,17 +32,41 @@ public final class LevelRepository: ObservableObject {
         self.selectedSkin = SnakeSkin(rawValue: savedSkin) ?? .emerald
         self.isDpadOnLeft = UserDefaults.standard.object(forKey: dpadKey) as? Bool ?? true
         self.highScore = UserDefaults.standard.integer(forKey: highScoreKey)
+        self.scoreboard = loadScoreboard()
         self.levels = loadLevels()
     }
 
-    @discardableResult
-    public func recordScore(_ score: Int) -> Bool {
-        if score > highScore {
-            highScore = score
-            UserDefaults.standard.set(score, forKey: highScoreKey)
-            return true
+    private func loadScoreboard() -> [ScoreEntry] {
+        guard let data = UserDefaults.standard.data(forKey: scoreboardKey),
+              let list = try? JSONDecoder().decode([ScoreEntry].self, from: data) else {
+            return [
+                ScoreEntry(score: 5000, levelReached: 10, dateStr: "08/11/2026"),
+                ScoreEntry(score: 3200, levelReached: 6, dateStr: "08/11/2026"),
+                ScoreEntry(score: 1500, levelReached: 3, dateStr: "08/11/2026")
+            ]
         }
-        return false
+        return list.sorted { $0.score > $1.score }
+    }
+
+    public func addScoreToBoard(score: Int, levelReached: Int) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yyyy HH:mm"
+        let dateStr = formatter.string(from: Date())
+        let newEntry = ScoreEntry(score: score, levelReached: levelReached, dateStr: dateStr)
+
+        var updated = scoreboard
+        updated.append(newEntry)
+        updated.sort { $0.score > $1.score }
+        if updated.count > 10 {
+            updated = Array(updated.prefix(10))
+        }
+        scoreboard = updated
+
+        if let encoded = try? JSONEncoder().encode(updated) {
+            UserDefaults.standard.set(encoded, forKey: scoreboardKey)
+        }
+
+        recordScore(score)
     }
 
     public func loadLevels() -> [Level] {
@@ -87,6 +113,16 @@ public final class LevelRepository: ObservableObject {
             unlockedLevelMax = min(levels.count, levelId + 1)
             UserDefaults.standard.set(unlockedLevelMax, forKey: unlockedKey)
         }
+    }
+
+    @discardableResult
+    public func recordScore(_ score: Int) -> Bool {
+        if score > highScore {
+            highScore = score
+            UserDefaults.standard.set(score, forKey: highScoreKey)
+            return true
+        }
+        return false
     }
 
     public static let fallbackLevels: [Level] = [

@@ -9,7 +9,8 @@ import kotlin.math.max
 class SnakePuzzleEngine(
     val level: Level,
     val initialScore: Int = 0,
-    val highScore: Int = 0
+    val highScore: Int = 0,
+    val initialLives: Int = 3
 ) {
     val solidPositions: Set<Position> = level.solidPositions
     val spikePositions: Set<Position> = level.spikePositions
@@ -23,7 +24,7 @@ class SnakePuzzleEngine(
     var canUndo by mutableStateOf(false)
         private set
 
-    private fun createInitialState(): GameState {
+    private fun createInitialState(lives: Int = initialLives): GameState {
         val initialApples = level.applePositions.toSet()
         val initialSnake = level.snakePositions
 
@@ -52,14 +53,23 @@ class SnakePuzzleEngine(
             isPortalUnlocked = portalUnlocked,
             score = initialScore,
             highScore = highScore,
-            levelScore = 0
+            levelScore = 0,
+            lives = lives,
+            elapsedSeconds = 0,
+            timeBonus = 0
         )
     }
 
-    fun reset() {
+    fun tickTimer() {
+        if (currentState.status is GameStatus.Playing) {
+            currentState = currentState.copy(elapsedSeconds = currentState.elapsedSeconds + 1)
+        }
+    }
+
+    fun reset(keepLives: Int = currentState.lives) {
         history.clear()
         canUndo = false
-        currentState = createInitialState()
+        currentState = createInitialState(lives = keepLives)
     }
 
     fun undo(): Boolean {
@@ -75,8 +85,9 @@ class SnakePuzzleEngine(
         object Moved : MoveResult()
         data class AppleEaten(val pos: Position, val portalJustOpened: Boolean, val points: Int) : MoveResult()
         object PortalLockedNotice : MoveResult()
-        data class LevelWon(val earnedScore: Int, val totalScore: Int) : MoveResult()
-        data class LevelLost(val reason: String, val finalScore: Int) : MoveResult()
+        data class LevelWon(val earnedScore: Int, val totalScore: Int, val timeBonus: Int) : MoveResult()
+        data class LifeLost(val remainingLives: Int, val reason: String) : MoveResult()
+        data class GameOver(val finalScore: Int, val reason: String) : MoveResult()
     }
 
     fun move(direction: Direction): MoveResult {
@@ -103,7 +114,7 @@ class SnakePuzzleEngine(
 
         val isEatingApple = currentState.remainingApples.contains(newHead)
 
-        // 4. Body collision check: If not eating apple, current tail will advance, so head can enter old tail
+        // 4. Body collision
         val occupied = if (isEatingApple) currentSnake else currentSnake.dropLast(1)
         if (occupied.contains(newHead)) {
             return MoveResult.Blocked
@@ -140,6 +151,7 @@ class SnakePuzzleEngine(
         }
 
         var nextStatus: GameStatus = GameStatus.Playing
+        var deathReason: String? = null
 
         // Check if head moved onto portal
         val reachedPortal = (portalPosition != null && newHead == portalPosition)
@@ -153,22 +165,22 @@ class SnakePuzzleEngine(
 
         // Check if head hit spike directly
         if (spikePositions.contains(newHead) && nextStatus !is GameStatus.Won) {
-            nextStatus = GameStatus.Lost("Ouch! You hit the sharp spikes!")
+            deathReason = "Ouch! You hit the sharp spikes!"
         }
 
         // Gravity simulation loop if still playing
         var resolvedSnake: List<Position> = nextSnake
-        if (nextStatus is GameStatus.Playing) {
+        if (nextStatus is GameStatus.Playing && deathReason == null) {
             var falling = true
             while (falling) {
                 // Check if any segment is on a spike during fall
                 if (resolvedSnake.any { spikePositions.contains(it) }) {
-                    nextStatus = GameStatus.Lost("Ouch! You fell into spikes!")
+                    deathReason = "Ouch! You fell into spikes!"
                     falling = false
                     break
                 }
 
-                // Check support: Is at least one segment resting directly on a solid block?
+                // Check support
                 var supported = false
                 for (seg in resolvedSnake) {
                     val below = Position(seg.x, seg.y + 1)
@@ -191,9 +203,9 @@ class SnakePuzzleEngine(
                         break
                     }
 
-                    // Check fall out of bounds / into the abyss
+                    // Check fall out of bounds
                     if (resolvedSnake.any { it.y >= level.height }) {
-                        nextStatus = GameStatus.Lost("You fell into the infinite abyss!")
+                        deathReason = "You fell into the infinite abyss!"
                         falling = false
                         break
                     }
@@ -202,23 +214,37 @@ class SnakePuzzleEngine(
         }
 
         // Check spikes after falling settled
-        if (nextStatus is GameStatus.Playing) {
+        if (nextStatus is GameStatus.Playing && deathReason == null) {
             if (resolvedSnake.any { spikePositions.contains(it) }) {
-                nextStatus = GameStatus.Lost("Ouch! You landed on spikes!")
+                deathReason = "Ouch! You landed on spikes!"
             } else if (portalPosition != null && resolvedSnake.firstOrNull() == portalPosition && isPortalNowUnlocked) {
                 nextStatus = GameStatus.Won
             }
         }
 
         val newMovesCount = currentState.movesCount + 1
-
-        // Calculate score bonus if won
         var totalRunScore = initialScore + nextLevelScore
+        var earnedTimeBonus = 0
+
+        // Handle victory calculation
         if (nextStatus is GameStatus.Won) {
-            val optimalBonus = max(0, (level.optimalMoves * 2 - newMovesCount) * 20)
-            val winBonus = 500 + optimalBonus
+            val optimalBonus = max(0, (level.optimalMoves * 2 - newMovesCount) * 15)
+            // Time bonus based on elapsed seconds: faster completion gives higher bonus!
+            earnedTimeBonus = max(50, 1000 - currentState.elapsedSeconds * 15)
+            val winBonus = 500 + optimalBonus + earnedTimeBonus
             nextLevelScore += winBonus
             totalRunScore = initialScore + nextLevelScore
+        }
+
+        // Handle death calculation with 3 lives system
+        var resultingLives = currentState.lives
+        if (deathReason != null) {
+            resultingLives = currentState.lives - 1
+            if (resultingLives > 0) {
+                nextStatus = GameStatus.LifeLost(deathReason, resultingLives)
+            } else {
+                nextStatus = GameStatus.GameOver(deathReason, totalRunScore)
+            }
         }
 
         currentState = GameState(
@@ -232,12 +258,16 @@ class SnakePuzzleEngine(
             lastEatenPosition = if (appleEatenThisTurn) newHead else null,
             score = totalRunScore,
             highScore = max(highScore, totalRunScore),
-            levelScore = nextLevelScore
+            levelScore = nextLevelScore,
+            lives = resultingLives,
+            elapsedSeconds = currentState.elapsedSeconds,
+            timeBonus = earnedTimeBonus
         )
 
         return when (nextStatus) {
-            is GameStatus.Won -> MoveResult.LevelWon(nextLevelScore, totalRunScore)
-            is GameStatus.Lost -> MoveResult.LevelLost(nextStatus.reason, totalRunScore)
+            is GameStatus.Won -> MoveResult.LevelWon(nextLevelScore, totalRunScore, earnedTimeBonus)
+            is GameStatus.LifeLost -> MoveResult.LifeLost(resultingLives, deathReason ?: "Lost 1 Life")
+            is GameStatus.GameOver -> MoveResult.GameOver(totalRunScore, deathReason ?: "Game Over")
             is GameStatus.Playing -> {
                 if (appleEatenThisTurn) MoveResult.AppleEaten(newHead, portalJustOpened, 100)
                 else if (reachedPortal && !isPortalNowUnlocked) MoveResult.PortalLockedNotice

@@ -36,12 +36,19 @@ fun LandscapeGameHUD(
     onDirection: (Direction) -> Unit,
     onUndo: () -> Unit,
     onRestart: () -> Unit,
+    onPrevLevel: () -> Unit,
+    onNextLevel: () -> Unit,
+    onOpenScoreboard: () -> Unit,
     onOpenLevelSelect: () -> Unit,
     onOpenSkinSelect: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val minutes = state.elapsedSeconds / 60
+    val seconds = state.elapsedSeconds % 60
+    val timeFormatted = String.format("%02d:%02d", minutes, seconds)
+
     Box(modifier = modifier.fillMaxSize()) {
         // 1. Center Game Board Canvas
         Box(
@@ -58,14 +65,15 @@ fun LandscapeGameHUD(
             content()
         }
 
-        // 2. Top-Left: Glossy Blue Restart Button (Exact match to screenshot)
+        // 2. Top-Left: Restart, Prev/Next Level Navigation & Level Tag
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = 16.dp, top = 12.dp),
+                .padding(start = 14.dp, top = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Restart Level Button
             GlossyBubbleButton(
                 icon = Icons.Default.Refresh,
                 contentDescription = "Restart Level",
@@ -73,12 +81,20 @@ fun LandscapeGameHUD(
                 onClick = onRestart
             )
 
-            // Current Level Tag
+            // Previous Level Button
+            GlossyBubbleButton(
+                icon = Icons.Default.SkipPrevious,
+                contentDescription = "Previous Level",
+                enabled = level.id > 1,
+                onClick = onPrevLevel
+            )
+
+            // Level Tag
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White.copy(alpha = 0.90f),
+                color = Color.White.copy(alpha = 0.95f),
                 shadowElevation = 3.dp,
-                border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF2072D6))
+                border = androidx.compose.foundation.BorderStroke(2.2.dp, Color(0xFF2072D6))
             ) {
                 Text(
                     text = "LV ${level.id}",
@@ -88,17 +104,24 @@ fun LandscapeGameHUD(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                 )
             }
+
+            // Next Level Button (Always accessible!)
+            GlossyBubbleButton(
+                icon = Icons.Default.SkipNext,
+                contentDescription = "Next Level",
+                enabled = level.id < 50,
+                onClick = onNextLevel
+            )
         }
 
-        // 3. Top-Center: Score, Best Score & Apple Counter Pill
+        // 3. Top-Center: 3 Hearts, Timer, Score & Apples
         Row(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 12.dp),
+                .padding(top = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Main Score & Best Pill
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = Color.White.copy(alpha = 0.95f),
@@ -106,43 +129,64 @@ fun LandscapeGameHUD(
                 border = androidx.compose.foundation.BorderStroke(2.5.dp, Color(0xFF2072D6))
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    // 3 Hearts (Lives) System
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        for (i in 1..3) {
+                            Text(
+                                text = if (i <= state.lives) "❤️" else "🖤",
+                                fontSize = 15.sp
+                            )
+                        }
+                    }
+
+                    // Divider
+                    Box(
+                        modifier = Modifier
+                            .width(1.5.dp)
+                            .height(16.dp)
+                            .background(Color(0xFFCBD5E1))
+                    )
+
+                    // Timer Stopwatch
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Text(text = "⏱️", fontSize = 13.sp)
+                        Text(
+                            text = timeFormatted,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 13.sp,
+                            color = Color(0xFF0F172A)
+                        )
+                    }
+
+                    // Divider
+                    Box(
+                        modifier = Modifier
+                            .width(1.5.dp)
+                            .height(16.dp)
+                            .background(Color(0xFFCBD5E1))
+                    )
+
                     // Current Score
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        Text(text = "⭐", fontSize = 14.sp)
+                        Text(text = "⭐", fontSize = 13.sp)
                         Text(
-                            text = "SCORE: ${state.score}",
+                            text = "${state.score}",
                             fontWeight = FontWeight.Black,
-                            fontSize = 14.sp,
-                            color = Color(0xFF1A365D)
-                        )
-                    }
-
-                    // Divider
-                    Box(
-                        modifier = Modifier
-                            .width(1.5.dp)
-                            .height(16.dp)
-                            .background(Color(0xFFCBD5E1))
-                    )
-
-                    // Best / High Score
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(text = "👑", fontSize = 14.sp)
-                        Text(
-                            text = "BEST: ${state.highScore}",
-                            fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
-                            color = Color(0xFFB45309)
+                            color = Color(0xFF1E3A8A)
                         )
                     }
 
@@ -154,25 +198,25 @@ fun LandscapeGameHUD(
                             .background(Color(0xFFCBD5E1))
                     )
 
-                    // Apples remaining
+                    // Apples Remaining
                     val remaining = state.remainingApples.size
                     val total = level.applePositions.size
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        Text(text = "🍎", fontSize = 14.sp)
+                        Text(text = "🍎", fontSize = 13.sp)
                         Text(
                             text = "${total - remaining}/$total",
                             fontWeight = FontWeight.Black,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             color = if (remaining == 0) Color(0xFF16A34A) else Color(0xFFDC2626)
                         )
                     }
                 }
             }
 
-            // Notice Banner (if any)
+            // Notice Message Banner
             AnimatedVisibility(
                 visible = state.noticeMessage != null,
                 enter = fadeIn() + expandHorizontally(),
@@ -189,20 +233,20 @@ fun LandscapeGameHUD(
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             color = Color.White,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
                         )
                     }
                 }
             }
         }
 
-        // 4. Top-Right: Glossy Blue Action Buttons (Undo, Levels, Skins, Settings)
+        // 4. Top-Right: Action Buttons (Undo, Scoreboard, Skins, Levels, Settings)
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(end = 16.dp, top = 12.dp),
+                .padding(end = 14.dp, top = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Undo Button
             GlossyBubbleButton(
@@ -210,6 +254,14 @@ fun LandscapeGameHUD(
                 contentDescription = "Undo Move",
                 enabled = canUndo,
                 onClick = onUndo
+            )
+
+            // Scoreboard (Bảng Điểm) Button
+            GlossyBubbleButton(
+                icon = Icons.Default.EmojiEvents,
+                contentDescription = "Scoreboard",
+                enabled = true,
+                onClick = onOpenScoreboard
             )
 
             // Skins Button
@@ -237,7 +289,7 @@ fun LandscapeGameHUD(
             )
         }
 
-        // 5. Thumb D-Pad (Left or Right side depending on user preference)
+        // 5. Thumb D-Pad
         Box(
             modifier = Modifier
                 .align(if (isDpadOnLeft) Alignment.BottomStart else Alignment.BottomEnd)
@@ -273,9 +325,9 @@ fun GlossyBubbleButton(
 
     Box(
         modifier = modifier
-            .size(46.dp)
+            .size(44.dp)
             .shadow(4.dp, CircleShape)
-            .border(2.8.dp, Color.White, CircleShape)
+            .border(2.6.dp, Color.White, CircleShape)
             .clip(CircleShape)
             .background(gradientBrush)
             .clickable(enabled = enabled) { onClick() },
@@ -285,7 +337,7 @@ fun GlossyBubbleButton(
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
-                .height(14.dp)
+                .height(13.dp)
                 .align(Alignment.TopCenter)
                 .padding(top = 2.dp)
                 .clip(RoundedCornerShape(8.dp))
@@ -296,7 +348,7 @@ fun GlossyBubbleButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = Color.White,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(22.dp)
         )
     }
 }

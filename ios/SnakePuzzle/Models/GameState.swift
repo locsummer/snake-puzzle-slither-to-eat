@@ -3,7 +3,8 @@ import Foundation
 public enum GameStatus: Equatable {
     case playing
     case won
-    case lost(reason: String)
+    case lifeLost(reason: String, remainingLives: Int)
+    case gameOver(reason: String, finalScore: Int)
 }
 
 public struct GameState: Equatable {
@@ -18,6 +19,9 @@ public struct GameState: Equatable {
     public var score: Int
     public var highScore: Int
     public var levelScore: Int
+    public var lives: Int
+    public var elapsedSeconds: Int
+    public var timeBonus: Int
 
     public init(
         snake: [Position],
@@ -30,7 +34,10 @@ public struct GameState: Equatable {
         lastEatenPosition: Position? = nil,
         score: Int = 0,
         highScore: Int = 0,
-        levelScore: Int = 0
+        levelScore: Int = 0,
+        lives: Int = 3,
+        elapsedSeconds: Int = 0,
+        timeBonus: Int = 0
     ) {
         self.snake = snake
         self.remainingApples = remainingApples
@@ -43,6 +50,9 @@ public struct GameState: Equatable {
         self.score = score
         self.highScore = highScore
         self.levelScore = levelScore
+        self.lives = lives
+        self.elapsedSeconds = elapsedSeconds
+        self.timeBonus = timeBonus
     }
 
     public var head: Position {
@@ -54,7 +64,11 @@ public struct GameState: Equatable {
     }
 
     public var isDead: Bool {
-        if case .lost = status { return true }
-        return false
+        switch status {
+        case .lifeLost, .gameOver:
+            return true
+        default:
+            return false
+        }
     }
 }

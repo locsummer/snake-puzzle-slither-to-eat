@@ -13,7 +13,8 @@ data class Particle(
 sealed class GameStatus {
     object Playing : GameStatus()
     object Won : GameStatus()
-    data class Lost(val reason: String) : GameStatus()
+    data class LifeLost(val reason: String, val remainingLives: Int) : GameStatus()
+    data class GameOver(val reason: String, val finalScore: Int) : GameStatus()
 }
 
 data class GameState(
@@ -27,7 +28,10 @@ data class GameState(
     val lastEatenPosition: Position? = null,
     val score: Int = 0,
     val highScore: Int = 0,
-    val levelScore: Int = 0
+    val levelScore: Int = 0,
+    val lives: Int = 3,
+    val elapsedSeconds: Int = 0,
+    val timeBonus: Int = 0
 ) {
     val head: Position
         get() = snake.firstOrNull() ?: Position(0, 0)
@@ -36,5 +40,5 @@ data class GameState(
         get() = remainingApples.isEmpty()
 
     val isDead: Boolean
-        get() = status is GameStatus.Lost
+        get() = status is GameStatus.LifeLost || status is GameStatus.GameOver
 }

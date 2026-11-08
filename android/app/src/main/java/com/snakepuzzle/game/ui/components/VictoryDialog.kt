@@ -3,7 +3,7 @@ package com.snakepuzzle.game.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
@@ -28,6 +28,8 @@ fun VictoryDialog(
     levelScore: Int,
     totalScore: Int,
     highScore: Int,
+    elapsedSeconds: Int,
+    timeBonus: Int,
     isNewHighScore: Boolean,
     hasNextLevel: Boolean,
     onNextLevel: () -> Unit,
@@ -38,7 +40,7 @@ fun VictoryDialog(
         Surface(
             shape = RoundedCornerShape(24.dp),
             color = Color.White,
-            shadowElevation = 8.dp,
+            shadowElevation = 10.dp,
             modifier = Modifier
                 .width(420.dp)
                 .padding(12.dp)
@@ -56,7 +58,7 @@ fun VictoryDialog(
                 )
 
                 Text(
-                    text = "Màn $levelId: $levelName",
+                    text = "Màn $levelId: $levelName ($world)",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextSecondary
@@ -77,7 +79,7 @@ fun VictoryDialog(
                     }
                 }
 
-                // Score Card
+                // Score Card with Time Bonus
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = Color(0xFFF0FDF4),
@@ -89,16 +91,22 @@ fun VictoryDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = "+$levelScore PTS (Bước đi: $moves / $optimalMoves)",
-                            fontSize = 14.sp,
+                            text = "⏱️ Thời gian: ${elapsedSeconds}s  •  Thưởng tốc độ: +$timeBonus PTS",
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF15803D)
                         )
                         Text(
-                            text = "TỔNG ĐIỂM: $totalScore PTS",
-                            fontSize = 16.sp,
+                            text = "ĐIỂM MÀN NÀY: +$levelScore PTS",
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF166534)
+                        )
+                        Text(
+                            text = "TỔNG ĐIỂM TÍCH LŨY: $totalScore PTS",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF14532D)
                         )
                         if (isNewHighScore) {
                             Text(
@@ -106,13 +114,6 @@ fun VictoryDialog(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color(0xFFB45309)
-                            )
-                        } else {
-                            Text(
-                                text = "Kỷ lục hiện tại: $highScore PTS",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF64748B)
                             )
                         }
                     }
@@ -124,22 +125,29 @@ fun VictoryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (hasNextLevel) {
-                        Button(
-                            onClick = onNextLevel,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
-                            modifier = Modifier
-                                .weight(1.3f)
-                                .height(46.dp)
+                    // Next Level Button (Guaranteed to work and loads next level!)
+                    Button(
+                        onClick = onNextLevel,
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
+                        modifier = Modifier
+                            .weight(1.3f)
+                            .height(48.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("Màn Tiếp Theo", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
-                            }
+                            Text(
+                                text = if (hasNextLevel) "Màn Tiếp Theo" else "Chơi Lại",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
                     }
 
@@ -148,7 +156,7 @@ fun VictoryDialog(
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(46.dp)
+                            .height(48.dp)
                     ) {
                         Text("Chơi Lại", fontWeight = FontWeight.Bold, color = TextPrimary)
                     }
@@ -158,9 +166,9 @@ fun VictoryDialog(
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(46.dp)
+                            .height(48.dp)
                     ) {
-                        Text("Danh Sách", fontWeight = FontWeight.Bold, color = TextSecondary)
+                        Text("Màn Chơi", fontWeight = FontWeight.Bold, color = TextSecondary)
                     }
                 }
             }

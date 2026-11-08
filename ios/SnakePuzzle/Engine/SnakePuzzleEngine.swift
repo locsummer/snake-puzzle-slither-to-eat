@@ -5,14 +5,16 @@ public enum MoveResult {
     case moved
     case appleEaten(position: Position, portalJustOpened: Bool, points: Int)
     case portalLockedNotice
-    case levelWon(earnedScore: Int, totalScore: Int)
-    case levelLost(reason: String, finalScore: Int)
+    case levelWon(earnedScore: Int, totalScore: Int, timeBonus: Int)
+    case lifeLost(remainingLives: Int, reason: String)
+    case gameOver(finalScore: Int, reason: String)
 }
 
 public final class SnakePuzzleEngine: ObservableObject {
     public let level: Level
     public let initialScore: Int
     public let highScore: Int
+    public let initialLives: Int
 
     @Published public private(set) var currentState: GameState
     @Published public private(set) var canUndo: Bool = false
@@ -22,10 +24,11 @@ public final class SnakePuzzleEngine: ObservableObject {
     public let spikePositions: Set<Position>
     public let portalPosition: Position?
 
-    public init(level: Level, initialScore: Int = 0, highScore: Int = 0) {
+    public init(level: Level, initialScore: Int = 0, highScore: Int = 0, initialLives: Int = 3) {
         self.level = level
         self.initialScore = initialScore
         self.highScore = highScore
+        self.initialLives = initialLives
         self.solidPositions = level.solidPositions
         self.spikePositions = level.spikePositions
         self.portalPosition = level.portalPosition
@@ -47,19 +50,28 @@ public final class SnakePuzzleEngine: ObservableObject {
 
         self.currentState = GameState(
             snake: initialSnake,
-            remainingApples: initialApples,
-            movesCount: 0,
+            remainingApples = initialApples,
+            movesCount = 0,
             status: .playing,
-            facingDirection: initialFacing,
-            noticeMessage: isUnlocked ? "Portal is open! Reach the vortex!" : nil,
-            isPortalUnlocked: isUnlocked,
-            score: initialScore,
-            highScore: highScore,
-            levelScore: 0
+            facingDirection = initialFacing,
+            noticeMessage = isUnlocked ? "Portal is open! Reach the vortex!" : nil,
+            isPortalUnlocked = isUnlocked,
+            score = initialScore,
+            highScore = highScore,
+            levelScore = 0,
+            lives = initialLives,
+            elapsedSeconds = 0,
+            timeBonus = 0
         )
     }
 
-    public func reset() {
+    public func tickTimer() {
+        if case .playing = currentState.status {
+            currentState.elapsedSeconds += 1
+        }
+    }
+
+    public func reset(keepLives: Int? = nil) {
         history.removeAll()
         canUndo = false
         let initialApples = Set(level.applePositions)
@@ -77,15 +89,18 @@ public final class SnakePuzzleEngine: ObservableObject {
 
         currentState = GameState(
             snake: initialSnake,
-            remainingApples: initialApples,
-            movesCount: 0,
+            remainingApples = initialApples,
+            movesCount = 0,
             status: .playing,
-            facingDirection: initialFacing,
-            noticeMessage: isUnlocked ? "Portal is open! Reach the vortex!" : nil,
-            isPortalUnlocked: isUnlocked,
-            score: initialScore,
-            highScore: highScore,
-            levelScore: 0
+            facingDirection = initialFacing,
+            noticeMessage = isUnlocked ? "Portal is open! Reach the vortex!" : nil,
+            isPortalUnlocked = isUnlocked,
+            score = initialScore,
+            highScore = highScore,
+            levelScore = 0,
+            lives = keepLives ?? currentState.lives,
+            elapsedSeconds = 0,
+            timeBonus = 0
         )
     }
 
@@ -155,6 +170,8 @@ public final class SnakePuzzleEngine: ObservableObject {
         }
 
         var nextStatus: GameStatus = .playing
+        var deathReason: String? = nil
+
         let reachedPortal = (portalPosition != nil && newHead == portalPosition)
         if reachedPortal {
             if isPortalNowUnlocked {
@@ -165,15 +182,15 @@ public final class SnakePuzzleEngine: ObservableObject {
         }
 
         if spikePositions.contains(newHead) && nextStatus != .won {
-            nextStatus = .lost(reason: "Ouch! You hit the sharp spikes!")
+            deathReason = "Ouch! You hit the sharp spikes!"
         }
 
         var resolvedSnake = nextSnake
-        if nextStatus == .playing {
+        if nextStatus == .playing && deathReason == null {
             var falling = true
             while falling {
                 if resolvedSnake.contains(where: { spikePositions.contains($0) }) {
-                    nextStatus = .lost(reason: "Ouch! You fell into spikes!")
+                    deathReason = "Ouch! You fell into spikes!"
                     falling = false
                     break
                 }
@@ -199,7 +216,7 @@ public final class SnakePuzzleEngine: ObservableObject {
                     }
 
                     if resolvedSnake.contains(where: { $0.y >= level.height }) {
-                        nextStatus = .lost(reason: "You fell into the infinite abyss!")
+                        deathReason = "You fell into the infinite abyss!"
                         falling = false
                         break
                     }
@@ -207,9 +224,9 @@ public final class SnakePuzzleEngine: ObservableObject {
             }
         }
 
-        if nextStatus == .playing {
+        if nextStatus == .playing && deathReason == nil {
             if resolvedSnake.contains(where: { spikePositions.contains($0) }) {
-                nextStatus = .lost(reason: "Ouch! You landed on spikes!")
+                deathReason = "Ouch! You landed on spikes!"
             } else if let portal = portalPosition, resolvedSnake.first == portal && isPortalNowUnlocked {
                 nextStatus = .won
             }
@@ -217,32 +234,50 @@ public final class SnakePuzzleEngine: ObservableObject {
 
         let newMoves = currentState.movesCount + 1
         var totalRunScore = initialScore + nextLevelScore
+        var earnedTimeBonus = 0
+
         if nextStatus == .won {
-            let optimalBonus = max(0, (level.optimalMoves * 2 - newMoves) * 20)
-            let winBonus = 500 + optimalBonus
+            let optimalBonus = max(0, (level.optimalMoves * 2 - newMoves) * 15)
+            earnedTimeBonus = max(50, 1000 - currentState.elapsedSeconds * 15)
+            let winBonus = 500 + optimalBonus + earnedTimeBonus
             nextLevelScore += winBonus
             totalRunScore = initialScore + nextLevelScore
         }
 
+        var resultingLives = currentState.lives
+        if let reason = deathReason {
+            resultingLives = currentState.lives - 1
+            if resultingLives > 0 {
+                nextStatus = .lifeLost(reason: reason, remainingLives: resultingLives)
+            } else {
+                nextStatus = .gameOver(reason: reason, finalScore: totalRunScore)
+            }
+        }
+
         currentState = GameState(
-            snake: resolvedSnake,
-            remainingApples: nextApples,
-            movesCount: newMoves,
-            status: nextStatus,
-            facingDirection: direction,
-            noticeMessage: notice,
-            isPortalUnlocked: isPortalNowUnlocked,
+            snake = resolvedSnake,
+            remainingApples = nextApples,
+            movesCount = newMoves,
+            status = nextStatus,
+            facingDirection = direction,
+            noticeMessage = notice,
+            isPortalUnlocked = isPortalNowUnlocked,
             lastEatenPosition: appleEatenThisTurn ? newHead : nil,
             score: totalRunScore,
             highScore: max(highScore, totalRunScore),
-            levelScore: nextLevelScore
+            levelScore: nextLevelScore,
+            lives: resultingLives,
+            elapsedSeconds: currentState.elapsedSeconds,
+            timeBonus: earnedTimeBonus
         )
 
         switch nextStatus {
         case .won:
-            return .levelWon(earnedScore: nextLevelScore, totalScore: totalRunScore)
-        case .lost(let reason):
-            return .levelLost(reason: reason, finalScore: totalRunScore)
+            return .levelWon(earnedScore: nextLevelScore, totalScore: totalRunScore, timeBonus: earnedTimeBonus)
+        case .lifeLost(let reason, let lives):
+            return .lifeLost(remainingLives: lives, reason: reason)
+        case .gameOver(let reason, let score):
+            return .gameOver(finalScore: score, reason: reason)
         case .playing:
             if appleEatenThisTurn {
                 return .appleEaten(position: newHead, portalJustOpened: portalJustOpened, points: 100)

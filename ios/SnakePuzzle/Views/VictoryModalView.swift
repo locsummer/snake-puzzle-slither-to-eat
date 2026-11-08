@@ -10,6 +10,8 @@ public struct VictoryModalView: View {
     public let levelScore: Int
     public let totalScore: Int
     public let highScore: Int
+    public let elapsedSeconds: Int
+    public let timeBonus: Int
     public let isNewHighScore: Bool
     public let hasNextLevel: Bool
     public let onNextLevel: () -> Void
@@ -26,7 +28,7 @@ public struct VictoryModalView: View {
                     .font(.system(size: 20, weight: .black, design: .rounded))
                     .foregroundColor(Color(red: 0.09, green: 0.64, blue: 0.29))
 
-                Text("Màn \(levelId): \(levelName)")
+                Text("Màn \(levelId): \(levelName) (\(world))")
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(GameTheme.textSecondary)
 
@@ -40,24 +42,24 @@ public struct VictoryModalView: View {
                     }
                 }
 
-                // Score Card
+                // Score Card with Time Bonus
                 VStack(spacing: 4) {
-                    Text("+\(levelScore) PTS (Bước đi: \(moves) / \(optimalMoves))")
+                    Text("⏱️ Thời gian: \(elapsedSeconds)s  •  Thưởng tốc độ: +\(timeBonus) PTS")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundColor(Color(red: 0.08, green: 0.50, blue: 0.24))
 
-                    Text("TỔNG ĐIỂM: \(totalScore) PTS")
-                        .font(.system(size: 16, weight: .black, design: .rounded))
+                    Text("ĐIỂM MÀN NÀY: +\(levelScore) PTS")
+                        .font(.system(size: 14, weight: .black, design: .rounded))
                         .foregroundColor(Color(red: 0.09, green: 0.40, blue: 0.20))
+
+                    Text("TỔNG ĐIỂM TÍCH LŨY: \(totalScore) PTS")
+                        .font(.system(size: 16, weight: .black, design: .rounded))
+                        .foregroundColor(Color(red: 0.08, green: 0.33, blue: 0.18))
 
                     if isNewHighScore {
                         Text("🔥 KỶ LỤC MỚI (NEW RECORD)! 🔥")
                             .font(.system(size: 12, weight: .black, design: .rounded))
                             .foregroundColor(Color(red: 0.71, green: 0.33, blue: 0.04))
-                    } else {
-                        Text("Kỷ lục hiện tại: \(highScore) PTS")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color(red: 0.39, green: 0.45, blue: 0.55))
                     }
                 }
                 .padding(.horizontal, 16)
@@ -67,19 +69,17 @@ public struct VictoryModalView: View {
                 .cornerRadius(14)
 
                 HStack(spacing: 10) {
-                    if hasNextLevel {
-                        Button(action: onNextLevel) {
-                            HStack {
-                                Text("Màn Tiếp Theo")
-                                Image(systemName: "arrow.right.circle.fill")
-                            }
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
-                            .background(Color(red: 0.09, green: 0.64, blue: 0.29))
-                            .cornerRadius(12)
+                    Button(action: onNextLevel) {
+                        HStack {
+                            Text(hasNextLevel ? "Màn Tiếp Theo" : "Chơi Lại")
+                            Image(systemName: "arrow.right.circle.fill")
                         }
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        .background(Color(red: 0.09, green: 0.64, blue: 0.29))
+                        .cornerRadius(12)
                     }
 
                     Button(action: onReplay) {
@@ -93,7 +93,7 @@ public struct VictoryModalView: View {
                     }
 
                     Button(action: onSelectLevel) {
-                        Text("Danh Sách")
+                        Text("Màn Chơi")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(GameTheme.textSecondary)
                             .padding(.horizontal, 14)

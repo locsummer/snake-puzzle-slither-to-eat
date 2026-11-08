@@ -6,8 +6,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.snakepuzzle.game.model.Level
+import com.snakepuzzle.game.model.ScoreEntry
 import com.snakepuzzle.game.model.SnakeSkin
 import org.json.JSONArray
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 class LevelRepository private constructor(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("SnakePuzzlePrefs_v2", Context.MODE_PRIVATE)
@@ -27,12 +31,16 @@ class LevelRepository private constructor(context: Context) {
     var highScore by mutableStateOf(0)
         private set
 
+    var scoreboard by mutableStateOf<List<ScoreEntry>>(emptyList())
+        private set
+
     init {
         unlockedLevelMax = prefs.getInt(KEY_UNLOCKED_MAX, 1).coerceAtLeast(1)
         val skinId = prefs.getString(KEY_SELECTED_SKIN, SnakeSkin.EMERALD.id) ?: SnakeSkin.EMERALD.id
         selectedSkin = SnakeSkin.fromId(skinId)
         isDpadOnLeft = prefs.getBoolean(KEY_DPAD_LEFT, true)
         highScore = prefs.getInt(KEY_HIGH_SCORE, 0)
+        scoreboard = loadScoreboardFromPrefs()
         levels = loadLevelsFromAssets(context)
     }
 
@@ -71,6 +79,59 @@ class LevelRepository private constructor(context: Context) {
             e.printStackTrace()
             fallback50Levels
         }
+    }
+
+    private fun loadScoreboardFromPrefs(): List<ScoreEntry> {
+        val jsonStr = prefs.getString(KEY_SCOREBOARD, null) ?: return defaultInitialScoreboard()
+        return try {
+            val array = JSONArray(jsonStr)
+            val list = mutableListOf<ScoreEntry>()
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                list.add(
+                    ScoreEntry(
+                        score = obj.getInt("score"),
+                        levelReached = obj.getInt("levelReached"),
+                        dateStr = obj.optString("dateStr", "08/11/2026")
+                    )
+                )
+            }
+            list.sortedByDescending { it.score }
+        } catch (e: Exception) {
+            defaultInitialScoreboard()
+        }
+    }
+
+    private fun defaultInitialScoreboard(): List<ScoreEntry> {
+        return listOf(
+            ScoreEntry(score = 5000, levelReached = 10, dateStr = "08/11/2026"),
+            ScoreEntry(score = 3200, levelReached = 6, dateStr = "08/11/2026"),
+            ScoreEntry(score = 1500, levelReached = 3, dateStr = "08/11/2026")
+        )
+    }
+
+    fun addScoreToBoard(score: Int, levelReached: Int) {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val dateStr = dateFormat.format(Date())
+        val newEntry = ScoreEntry(score = score, levelReached = levelReached, dateStr = dateStr)
+
+        val updatedList = (scoreboard + newEntry)
+            .sortedByDescending { it.score }
+            .take(10) // Keep top 10
+
+        scoreboard = updatedList
+
+        val jsonArray = JSONArray()
+        for (item in updatedList) {
+            val obj = JSONObject()
+            obj.put("score", item.score)
+            obj.put("levelReached", item.levelReached)
+            obj.put("dateStr", item.dateStr)
+            jsonArray.put(obj)
+        }
+        prefs.edit().putString(KEY_SCOREBOARD, jsonArray.toString()).apply()
+
+        recordScore(score)
     }
 
     fun isLevelUnlocked(levelId: Int): Boolean = levelId <= unlockedLevelMax
@@ -127,6 +188,7 @@ class LevelRepository private constructor(context: Context) {
         private const val KEY_SELECTED_SKIN = "selected_skin"
         private const val KEY_DPAD_LEFT = "dpad_left"
         private const val KEY_HIGH_SCORE = "high_score"
+        private const val KEY_SCOREBOARD = "scoreboard_entries_v1"
 
         @Volatile
         private var instance: LevelRepository? = null

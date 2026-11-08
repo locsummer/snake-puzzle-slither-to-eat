@@ -1,6 +1,5 @@
 package com.snakepuzzle.game.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -14,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.snakepuzzle.game.ui.theme.SpikePoint
-import com.snakepuzzle.game.ui.theme.TextPrimary
 import com.snakepuzzle.game.ui.theme.TextSecondary
 
 @Composable
@@ -22,16 +20,15 @@ fun DefeatDialog(
     reason: String,
     score: Int,
     highScore: Int,
-    canUndo: Boolean,
-    onUndo: () -> Unit,
+    levelReached: Int,
     onRestartFromBeginning: () -> Unit,
-    onSelectLevel: () -> Unit
+    onViewScoreboard: () -> Unit
 ) {
     Dialog(onDismissRequest = {}) {
         Surface(
             shape = RoundedCornerShape(24.dp),
             color = Color.White,
-            shadowElevation = 8.dp,
+            shadowElevation = 10.dp,
             modifier = Modifier
                 .width(420.dp)
                 .padding(12.dp)
@@ -39,17 +36,17 @@ fun DefeatDialog(
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    text = "💀 BẠN ĐÃ THUA CUỘC!",
-                    fontSize = 24.sp,
+                    text = "💀 HẾT 3 TIM - GAME OVER!",
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Black,
                     color = SpikePoint
                 )
 
                 Text(
-                    text = reason,
+                    text = "$reason\nBạn đã dùng hết cả 3 tim!",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = TextSecondary,
@@ -59,42 +56,40 @@ fun DefeatDialog(
                 // Score Card
                 Surface(
                     shape = RoundedCornerShape(16.dp),
-                    color = Color(0xFFF8FAFC),
+                    color = Color(0xFFFEF2F2),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier.padding(14.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = "ĐIỂM LƯỢT NÀY: $score PTS",
-                            fontSize = 16.sp,
+                            text = "TỔNG ĐIỂM: $score PTS",
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF1E293B)
+                            color = Color(0xFF991B1B)
                         )
                         Text(
-                            text = "👑 Kỷ lục: $highScore PTS",
+                            text = "Màn chơi dừng lại: LV $levelReached",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFB45309)
+                            color = Color(0xFF475569)
                         )
                         Text(
-                            text = "⚠️ Luật chơi: Chết thì phải chơi lại từ Level 1!",
+                            text = "✅ Đã lưu kết quả vào Bảng Điểm Kỷ Lục!",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFDC2626)
+                            color = Color(0xFF15803D)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
-
+                // Action Buttons
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Main Reset from Level 1 Button
                     Button(
                         onClick = onRestartFromBeginning,
                         shape = RoundedCornerShape(14.dp),
@@ -103,35 +98,17 @@ fun DefeatDialog(
                             .fillMaxWidth()
                             .height(48.dp)
                     ) {
-                        Text("🔄 CHƠI LẠI TỪ ĐẦU (LEVEL 1)", fontSize = 15.sp, fontWeight = FontWeight.Black)
+                        Text("🔄 CHƠI LẠI TỪ LEVEL 1 (HỒI 3 TIM)", fontSize = 14.sp, fontWeight = FontWeight.Black)
                     }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    OutlinedButton(
+                        onClick = onViewScoreboard,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
                     ) {
-                        if (canUndo) {
-                            Button(
-                                onClick = onUndo,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
-                                modifier = Modifier
-                                    .weight(1.2f)
-                                    .height(44.dp)
-                            ) {
-                                Text("Hoàn tác (Undo)", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-
-                        OutlinedButton(
-                            onClick = onSelectLevel,
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                        ) {
-                            Text("Màn chơi", fontWeight = FontWeight.Bold, color = TextSecondary)
-                        }
+                        Text("🏆 Xem Bảng Điểm Kỷ Lục", fontWeight = FontWeight.Bold, color = Color(0xFF1E3A8A))
                     }
                 }
             }

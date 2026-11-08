@@ -6,11 +6,16 @@ public struct GameView: View {
 
     @State private var currentLevelIndex: Int = 0
     @State private var currentRunScore: Int = 0
+    @State private var currentLives: Int = 3
     @State private var isNewHighScore: Bool = false
     @State private var engine: SnakePuzzleEngine?
+
     @State private var showLevelSelect: Bool = false
     @State private var showSkinSelect: Bool = false
     @State private var showSettings: Bool = false
+    @State private var showScoreboard: Bool = false
+
+    private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
 
     public init() {}
 
@@ -34,7 +39,23 @@ public struct GameView: View {
                     },
                     onRestart: {
                         sound.playClick()
-                        eng.reset()
+                        eng.reset(keepLives: currentLives)
+                    },
+                    onPrevLevel: {
+                        sound.playClick()
+                        if currentLevelIndex > 0 {
+                            loadLevel(at: currentLevelIndex - 1)
+                        }
+                    },
+                    onNextLevel: {
+                        sound.playClick()
+                        if currentLevelIndex + 1 < repository.levels.count {
+                            loadLevel(at: currentLevelIndex + 1)
+                        }
+                    },
+                    onOpenScoreboard: {
+                        sound.playClick()
+                        showScoreboard = true
                     },
                     onOpenLevelSelect: {
                         sound.playClick()
@@ -63,7 +84,7 @@ public struct GameView: View {
                     )
                 }
 
-                // Victory & Defeat modals
+                // Victory, LifeLost & Defeat modals
                 switch eng.currentState.status {
                 case .won:
                     let moves = eng.currentState.movesCount
@@ -82,44 +103,58 @@ public struct GameView: View {
                         levelScore: eng.currentState.levelScore,
                         totalScore: eng.currentState.score,
                         highScore: repository.highScore,
+                        elapsedSeconds: eng.currentState.elapsedSeconds,
+                        timeBonus: eng.currentState.timeBonus,
                         isNewHighScore: isNewHighScore,
                         hasNextLevel: currentLevelIndex + 1 < repository.levels.count,
                         onNextLevel: {
-                            currentRunScore = eng.currentState.score
-                            if currentLevelIndex + 1 < repository.levels.count {
-                                loadLevel(at: currentLevelIndex + 1)
-                            }
+                            let nextIdx = (currentLevelIndex + 1 < repository.levels.count) ? currentLevelIndex + 1 : 0
+                            loadLevel(at: nextIdx, keepScore: eng.currentState.score, keepLives: currentLives)
                         },
                         onReplay: {
-                            eng.reset()
+                            eng.reset(keepLives: currentLives)
                         },
                         onSelectLevel: {
                             showLevelSelect = true
                         }
                     )
 
-                case .lost(let reason):
-                    DefeatModalView(
+                case .lifeLost(let reason, let remainingLives):
+                    LifeLostModalView(
                         reason: reason,
-                        score: eng.currentState.score,
-                        highScore: repository.highScore,
+                        remainingLives: remainingLives,
                         canUndo: eng.canUndo,
                         onUndo: {
                             _ = eng.undo()
                         },
+                        onRetryLevel: {
+                            loadLevel(at: currentLevelIndex, keepScore: currentRunScore, keepLives: remainingLives)
+                        }
+                    )
+
+                case .gameOver(let reason, let finalScore):
+                    DefeatModalView(
+                        reason: reason,
+                        score: finalScore,
+                        highScore: repository.highScore,
+                        levelReached: lvl.id,
                         onRestartFromBeginning: {
-                            // "chết thì chơi lại từ đầu" -> Reset to Level 1 and 0 score!
-                            currentRunScore = 0
-                            loadLevel(at: 0)
+                            // "khi hết 3 tim sẽ thua lưu lại điểm vào bảng điểm và trở về lv1"
+                            loadLevel(at: 0, keepScore: 0, keepLives: 3)
                         },
-                        onSelectLevel: {
-                            showLevelSelect = true
+                        onViewScoreboard: {
+                            showScoreboard = true
                         }
                     )
 
                 case .playing:
                     EmptyView()
                 }
+            }
+
+            // Scoreboard Modal
+            if showScoreboard {
+                ScoreboardModalView(scoreboard: repository.scoreboard, onClose: { showScoreboard = false })
             }
 
             // Skin Selector Modal
@@ -131,6 +166,9 @@ public struct GameView: View {
             if showSettings {
                 SettingsModalView(onClose: { showSettings = false })
             }
+        }
+        .onReceive(timer) { _ in
+            engine?.tickTimer()
         }
         .sheet(isPresented: $showLevelSelect) {
             LevelSelectView(
@@ -147,7 +185,7 @@ public struct GameView: View {
         }
         .onAppear {
             if let firstLevel = repository.levels.first {
-                engine = SnakePuzzleEngine(level: firstLevel, initialScore: currentRunScore, highScore: repository.highScore)
+                engine = SnakePuzzleEngine(level: firstLevel, initialScore: currentRunScore, highScore: repository.highScore, initialLives: currentLives)
             }
         }
     }
@@ -167,18 +205,23 @@ public struct GameView: View {
         guard let eng = engine, let lvl = currentLevel else { return }
         let result = eng.move(direction)
         switch result {
-        case .levelWon(_, let totalScore):
+        case .levelWon(_, let totalScore, _):
             sound.playWin()
+            currentRunScore = totalScore
             isNewHighScore = repository.recordScore(totalScore)
             repository.recordWin(
-                levelId: lvl.id,
+                levelId = lvl.id,
                 moves: eng.currentState.movesCount,
                 targetApples: lvl.applePositions.count,
                 optimalMoves: lvl.optimalMoves
             )
-        case .levelLost(_, let finalScore):
+        case .lifeLost(let remaining, _):
             sound.playSpike()
-            _ = repository.recordScore(finalScore)
+            currentLives = remaining
+        case .gameOver(let finalScore, _):
+            sound.playSpike()
+            currentLives = 0
+            repository.addScoreToBoard(score: finalScore, levelReached: lvl.id)
         case .appleEaten(_, let portalJustOpened, _):
             sound.playEat()
             if portalJustOpened {
@@ -193,10 +236,12 @@ public struct GameView: View {
         }
     }
 
-    private func loadLevel(at index: Int) {
+    private func loadLevel(at index: Int, keepScore: Int = 0, keepLives: Int = 3) {
         guard index >= 0 && index < repository.levels.count else { return }
         currentLevelIndex = index
+        currentRunScore = keepScore
+        currentLives = keepLives
         let lvl = repository.levels[index]
-        engine = SnakePuzzleEngine(level: lvl, initialScore: currentRunScore, highScore: repository.highScore)
+        engine = SnakePuzzleEngine(level: lvl, initialScore: keepScore, highScore: repository.highScore, initialLives: keepLives)
     }
 }
