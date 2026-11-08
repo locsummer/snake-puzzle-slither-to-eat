@@ -29,9 +29,9 @@ fun ScoreboardDialog(
             color = Color.White,
             shadowElevation = 10.dp,
             modifier = Modifier
-                .width(460.dp)
-                .heightIn(max = 380.dp)
-                .padding(12.dp)
+                .width(480.dp)
+                .fillMaxHeight(0.9f)
+                .padding(8.dp)
         ) {
             Column(
                 modifier = Modifier

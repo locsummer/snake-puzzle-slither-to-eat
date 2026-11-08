@@ -1,7 +1,9 @@
 package com.snakepuzzle.game.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,28 +28,31 @@ fun DefeatDialog(
 ) {
     Dialog(onDismissRequest = {}) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(22.dp),
             color = Color.White,
             shadowElevation = 10.dp,
             modifier = Modifier
-                .width(420.dp)
-                .padding(12.dp)
+                .widthIn(max = 500.dp)
+                .padding(8.dp)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = "💀 HẾT 3 TIM - GAME OVER!",
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
                     color = SpikePoint
                 )
 
                 Text(
-                    text = "$reason\nBạn đã dùng hết cả 3 tim!",
-                    fontSize = 14.sp,
+                    text = "$reason • Bạn đã dùng hết cả 3 tim!",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = TextSecondary,
                     textAlign = TextAlign.Center
@@ -55,60 +60,65 @@ fun DefeatDialog(
 
                 // Score Card
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(12.dp),
                     color = Color(0xFFFEF2F2),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(
-                        modifier = Modifier.padding(14.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "TỔNG ĐIỂM: $score PTS",
-                            fontSize = 18.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF991B1B)
                         )
                         Text(
-                            text = "Màn chơi dừng lại: LV $levelReached",
-                            fontSize = 13.sp,
+                            text = "Dừng ở: LV $levelReached",
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF475569)
                         )
                         Text(
-                            text = "✅ Đã lưu kết quả vào Bảng Điểm Kỷ Lục!",
-                            fontSize = 12.sp,
+                            text = "✅ Đã lưu kỷ lục!",
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF15803D)
                         )
                     }
                 }
 
-                // Action Buttons
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                // Action Buttons in a Row for Landscape!
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
                         onClick = onRestartFromBeginning,
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
+                            .weight(1.4f)
+                            .height(46.dp)
                     ) {
-                        Text("🔄 CHƠI LẠI TỪ LEVEL 1 (HỒI 3 TIM)", fontSize = 14.sp, fontWeight = FontWeight.Black)
+                        Text("🔄 CHƠI LẠI TỪ LV 1", fontSize = 13.sp, fontWeight = FontWeight.Black)
                     }
 
                     OutlinedButton(
                         onClick = onViewScoreboard,
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
+                            .weight(1f)
+                            .height(46.dp)
                     ) {
-                        Text("🏆 Xem Bảng Điểm Kỷ Lục", fontWeight = FontWeight.Bold, color = Color(0xFF1E3A8A))
+                        Text("🏆 Bảng Điểm", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF1E3A8A))
                     }
                 }
             }
