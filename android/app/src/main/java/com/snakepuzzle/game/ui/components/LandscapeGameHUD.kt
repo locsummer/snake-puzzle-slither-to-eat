@@ -65,228 +65,254 @@ fun LandscapeGameHUD(
             content()
         }
 
-        // 2. Top-Left: Restart, Prev/Next Level Navigation & Level Tag
+        // 2. TOP HUD BAR - Unified responsive row (No overlapping on any screen size!)
         Row(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 14.dp, top = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp, top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Restart Level Button
-            GlossyBubbleButton(
-                icon = Icons.Default.Refresh,
-                contentDescription = "Restart Level",
-                enabled = true,
-                onClick = onRestart
-            )
-
-            // Previous Level Button
-            GlossyBubbleButton(
-                icon = Icons.Default.SkipPrevious,
-                contentDescription = "Previous Level",
-                enabled = level.id > 1,
-                onClick = onPrevLevel
-            )
-
-            // Level Tag
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color.White.copy(alpha = 0.95f),
-                shadowElevation = 3.dp,
-                border = androidx.compose.foundation.BorderStroke(2.2.dp, Color(0xFF2072D6))
+            // LEFT: Quick Action (Restart, Undo) & Prominent Level Navigator with "NEXT ▶"
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(
-                    text = "LV ${level.id}",
-                    fontWeight = FontWeight.Black,
-                    fontSize = 15.sp,
-                    color = Color(0xFF1B4F9B),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                // Restart button
+                GlossyBubbleButton(
+                    icon = Icons.Default.Refresh,
+                    contentDescription = "Restart Level",
+                    enabled = true,
+                    onClick = onRestart
                 )
+
+                // Undo button
+                GlossyBubbleButton(
+                    icon = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Undo Move",
+                    enabled = canUndo,
+                    onClick = onUndo
+                )
+
+                // Level Navigator Pill: [ ◀ ] LV X [ NEXT ▶ ]
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = Color.White.copy(alpha = 0.95f),
+                    shadowElevation = 4.dp,
+                    border = androidx.compose.foundation.BorderStroke(2.2.dp, Color(0xFF2072D6))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Previous Level Arrow
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(if (level.id > 1) Color(0xFFE2E8F0) else Color(0xFFF1F5F9))
+                                .clickable(enabled = level.id > 1) { onPrevLevel() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "◀",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (level.id > 1) Color(0xFF1E293B) else Color(0xFF94A3B8)
+                            )
+                        }
+
+                        // Current Level Label
+                        Text(
+                            text = "LV ${level.id}",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 14.sp,
+                            color = Color(0xFF1B4F9B),
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+
+                        // DEDICATED PROMINENT "NEXT ▶" BUTTON (Can never be missed!)
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (level.id < 50) Color(0xFF16A34A) else Color(0xFF94A3B8),
+                            shadowElevation = 2.dp,
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Color.White),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(14.dp))
+                                .clickable(enabled = level.id < 50) { onNextLevel() }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "NEXT",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 13.sp,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "▶",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 11.sp,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
-            // Next Level Button (Always accessible!)
-            GlossyBubbleButton(
-                icon = Icons.Default.SkipNext,
-                contentDescription = "Next Level",
-                enabled = level.id < 50,
-                onClick = onNextLevel
-            )
-        }
-
-        // 3. Top-Center: 3 Hearts, Timer, Score & Apples
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = Color.White.copy(alpha = 0.95f),
-                shadowElevation = 4.dp,
-                border = androidx.compose.foundation.BorderStroke(2.5.dp, Color(0xFF2072D6))
+            // CENTER: 3 Hearts, Stopwatch, Score & Apples Pill
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color.White.copy(alpha = 0.95f),
+                    shadowElevation = 4.dp,
+                    border = androidx.compose.foundation.BorderStroke(2.2.dp, Color(0xFF2072D6))
                 ) {
-                    // 3 Hearts (Lives) System
                     Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        for (i in 1..3) {
+                        // 3 Hearts
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            for (i in 1..3) {
+                                Text(
+                                    text = if (i <= state.lives) "❤️" else "🖤",
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+
+                        // Divider
+                        Box(modifier = Modifier.width(1.5.dp).height(14.dp).background(Color(0xFFCBD5E1)))
+
+                        // Stopwatch
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(text = "⏱️", fontSize = 12.sp)
                             Text(
-                                text = if (i <= state.lives) "❤️" else "🖤",
-                                fontSize = 15.sp
+                                text = timeFormatted,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp,
+                                color = Color(0xFF0F172A)
+                            )
+                        }
+
+                        // Divider
+                        Box(modifier = Modifier.width(1.5.dp).height(14.dp).background(Color(0xFFCBD5E1)))
+
+                        // Current Score
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(text = "⭐", fontSize = 12.sp)
+                            Text(
+                                text = "${state.score}",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp,
+                                color = Color(0xFF1E3A8A)
+                            )
+                        }
+
+                        // Divider
+                        Box(modifier = Modifier.width(1.5.dp).height(14.dp).background(Color(0xFFCBD5E1)))
+
+                        // Apples Remaining
+                        val remaining = state.remainingApples.size
+                        val total = level.applePositions.size
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(text = "🍎", fontSize = 12.sp)
+                            Text(
+                                text = "${total - remaining}/$total",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp,
+                                color = if (remaining == 0) Color(0xFF16A34A) else Color(0xFFDC2626)
                             )
                         }
                     }
-
-                    // Divider
-                    Box(
-                        modifier = Modifier
-                            .width(1.5.dp)
-                            .height(16.dp)
-                            .background(Color(0xFFCBD5E1))
-                    )
-
-                    // Timer Stopwatch
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Text(text = "⏱️", fontSize = 13.sp)
-                        Text(
-                            text = timeFormatted,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 13.sp,
-                            color = Color(0xFF0F172A)
-                        )
-                    }
-
-                    // Divider
-                    Box(
-                        modifier = Modifier
-                            .width(1.5.dp)
-                            .height(16.dp)
-                            .background(Color(0xFFCBD5E1))
-                    )
-
-                    // Current Score
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Text(text = "⭐", fontSize = 13.sp)
-                        Text(
-                            text = "${state.score}",
-                            fontWeight = FontWeight.Black,
-                            fontSize = 13.sp,
-                            color = Color(0xFF1E3A8A)
-                        )
-                    }
-
-                    // Divider
-                    Box(
-                        modifier = Modifier
-                            .width(1.5.dp)
-                            .height(16.dp)
-                            .background(Color(0xFFCBD5E1))
-                    )
-
-                    // Apples Remaining
-                    val remaining = state.remainingApples.size
-                    val total = level.applePositions.size
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Text(text = "🍎", fontSize = 13.sp)
-                        Text(
-                            text = "${total - remaining}/$total",
-                            fontWeight = FontWeight.Black,
-                            fontSize = 13.sp,
-                            color = if (remaining == 0) Color(0xFF16A34A) else Color(0xFFDC2626)
-                        )
-                    }
                 }
             }
 
-            // Notice Message Banner
-            AnimatedVisibility(
-                visible = state.noticeMessage != null,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
+            // RIGHT: Scoreboard, Levels, Skins, Settings
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                state.noticeMessage?.let { msg ->
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = if (state.isPortalUnlocked) Color(0xFF16A34A) else Color(0xFFEA580C),
-                        shadowElevation = 4.dp
-                    ) {
-                        Text(
-                            text = msg,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
-                        )
-                    }
-                }
+                // Scoreboard (Bảng Điểm)
+                GlossyBubbleButton(
+                    icon = Icons.Default.EmojiEvents,
+                    contentDescription = "Scoreboard",
+                    enabled = true,
+                    onClick = onOpenScoreboard
+                )
+
+                // Levels Button
+                GlossyBubbleButton(
+                    icon = Icons.Default.GridOn,
+                    contentDescription = "Level Select",
+                    enabled = true,
+                    onClick = onOpenLevelSelect
+                )
+
+                // Skins Button
+                GlossyBubbleButton(
+                    icon = Icons.Default.Palette,
+                    contentDescription = "Change Skin",
+                    enabled = true,
+                    onClick = onOpenSkinSelect
+                )
+
+                // Settings Button
+                GlossyBubbleButton(
+                    icon = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    enabled = true,
+                    onClick = onOpenSettings
+                )
             }
         }
 
-        // 4. Top-Right: Action Buttons (Undo, Scoreboard, Skins, Levels, Settings)
-        Row(
+        // 3. Notice Message Banner (Centered below top bar)
+        AnimatedVisibility(
+            visible = state.noticeMessage != null,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 14.dp, top = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .align(Alignment.TopCenter)
+                .padding(top = 54.dp)
         ) {
-            // Undo Button
-            GlossyBubbleButton(
-                icon = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Undo Move",
-                enabled = canUndo,
-                onClick = onUndo
-            )
-
-            // Scoreboard (Bảng Điểm) Button
-            GlossyBubbleButton(
-                icon = Icons.Default.EmojiEvents,
-                contentDescription = "Scoreboard",
-                enabled = true,
-                onClick = onOpenScoreboard
-            )
-
-            // Skins Button
-            GlossyBubbleButton(
-                icon = Icons.Default.Palette,
-                contentDescription = "Change Skin",
-                enabled = true,
-                onClick = onOpenSkinSelect
-            )
-
-            // Levels Button
-            GlossyBubbleButton(
-                icon = Icons.Default.GridOn,
-                contentDescription = "Level Select",
-                enabled = true,
-                onClick = onOpenLevelSelect
-            )
-
-            // Settings Button
-            GlossyBubbleButton(
-                icon = Icons.Default.Settings,
-                contentDescription = "Settings",
-                enabled = true,
-                onClick = onOpenSettings
-            )
+            state.noticeMessage?.let { msg ->
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (state.isPortalUnlocked) Color(0xFF16A34A) else Color(0xFFEA580C),
+                    shadowElevation = 4.dp
+                ) {
+                    Text(
+                        text = msg,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                    )
+                }
+            }
         }
 
         // 5. Thumb D-Pad

@@ -27,7 +27,7 @@ public final class LevelRepository: ObservableObject {
     private let scoreboardKey = "SnakePuzzle_Scoreboard_v1"
 
     public init() {
-        self.unlockedLevelMax = max(1, UserDefaults.standard.integer(forKey: unlockedKey))
+        self.unlockedLevelMax = 50 // All 50 levels unlocked by default for player freedom!
         let savedSkin = UserDefaults.standard.string(forKey: skinKey) ?? "emerald"
         self.selectedSkin = SnakeSkin(rawValue: savedSkin) ?? .emerald
         self.isDpadOnLeft = UserDefaults.standard.object(forKey: dpadKey) as? Bool ?? true
@@ -79,7 +79,7 @@ public final class LevelRepository: ObservableObject {
     }
 
     public func isLevelUnlocked(_ levelId: Int) -> Bool {
-        return levelId <= unlockedLevelMax
+        return true // All levels freely accessible!
     }
 
     public func stars(for levelId: Int) -> Int {

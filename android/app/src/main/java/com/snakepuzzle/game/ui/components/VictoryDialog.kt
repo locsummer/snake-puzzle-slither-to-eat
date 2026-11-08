@@ -131,22 +131,17 @@ fun VictoryDialog(
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
                         modifier = Modifier
-                            .weight(1.3f)
-                            .height(48.dp)
+                            .weight(1.5f)
+                            .height(50.dp)
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (hasNextLevel) "Màn Tiếp Theo" else "Chơi Lại",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
+                                text = if (hasNextLevel) "NEXT LEVEL ▶" else "CHƠI LẠI",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Black
                             )
                         }
                     }

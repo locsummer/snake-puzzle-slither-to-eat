@@ -71,12 +71,12 @@ public struct VictoryModalView: View {
                 HStack(spacing: 10) {
                     Button(action: onNextLevel) {
                         HStack {
-                            Text(hasNextLevel ? "Màn Tiếp Theo" : "Chơi Lại")
+                            Text(hasNextLevel ? "NEXT LEVEL ▶" : "Chơi Lại")
                             Image(systemName: "arrow.right.circle.fill")
                         }
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .black, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 14)
+                        .padding(.horizontal, 16)
                         .padding(.vertical, 12)
                         .background(Color(red: 0.09, green: 0.64, blue: 0.29))
                         .cornerRadius(12)

@@ -19,7 +19,7 @@ class LevelRepository private constructor(context: Context) {
     var levels: List<Level> = emptyList()
         private set
 
-    var unlockedLevelMax by mutableStateOf(1)
+    var unlockedLevelMax by mutableStateOf(50)
         private set
 
     var selectedSkin by mutableStateOf(SnakeSkin.EMERALD)
@@ -35,7 +35,7 @@ class LevelRepository private constructor(context: Context) {
         private set
 
     init {
-        unlockedLevelMax = prefs.getInt(KEY_UNLOCKED_MAX, 1).coerceAtLeast(1)
+        unlockedLevelMax = 50 // All 50 levels unlocked by default for player freedom!
         val skinId = prefs.getString(KEY_SELECTED_SKIN, SnakeSkin.EMERALD.id) ?: SnakeSkin.EMERALD.id
         selectedSkin = SnakeSkin.fromId(skinId)
         isDpadOnLeft = prefs.getBoolean(KEY_DPAD_LEFT, true)
@@ -134,7 +134,7 @@ class LevelRepository private constructor(context: Context) {
         recordScore(score)
     }
 
-    fun isLevelUnlocked(levelId: Int): Boolean = levelId <= unlockedLevelMax
+    fun isLevelUnlocked(levelId: Int): Boolean = true // All levels freely accessible!
 
     fun getStars(levelId: Int): Int = prefs.getInt("${KEY_STARS_PREFIX}$levelId", 0)
 
