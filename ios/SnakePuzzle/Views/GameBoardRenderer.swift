@@ -7,7 +7,6 @@ public struct GameBoardRenderer: View {
 
     @State private var portalRotation: Double = 0
     @State private var applePulse: CGFloat = 1.0
-    @State private var tongueFlick: CGFloat = 0.0
 
     public init(level: Level, state: GameState, skin: SnakeSkin) {
         self.level = level
@@ -29,113 +28,470 @@ public struct GameBoardRenderer: View {
             let offsetX = (availableWidth - boardWidth) / 2
             let offsetY = (availableHeight - boardHeight) / 2
 
-            let baseDirt = GameTheme.blockBase(for: level.world)
-            let topTrim = GameTheme.blockTrim(for: level.world)
+            ZStack {
+                // 1. Sunburst Comic Sky Background
+                SunburstSkyView()
 
-            ZStack(alignment: .topLeading) {
-                // Background grid card
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.black.opacity(0.18))
-                    .frame(width: boardWidth + 8, height: boardHeight + 8)
-                    .offset(x: -4, y: -4)
+                // 2. Game Board Elements
+                ZStack(alignment: .topLeading) {
+                    // Connected Brown Dirt Platforms with outer black outline & wavy top edges
+                    Canvas { context, size in
+                        let outlineWidth: CGFloat = 3.5
 
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.black.opacity(0.15))
-                    .frame(width: boardWidth, height: boardHeight)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1.5)
-                    )
+                        // Pass 1: Fill all solid cells with warm earth brown
+                        for pos in level.solidPositions {
+                            let cellX = CGFloat(pos.x) * cellSize
+                            let cellY = CGFloat(pos.y) * cellSize
 
-                // Grid lines
-                Canvas { context, size in
-                    for x in 0...level.width {
-                        let px = CGFloat(x) * cellSize
-                        var path = Path()
-                        path.move(to: CGPoint(x: px, y: 0))
-                        path.addLine(to: CGPoint(x: px, y: size.height))
-                        context.stroke(path, with: .color(Color.white.opacity(0.1)), lineWidth: 0.5)
-                    }
-                    for y in 0...level.height {
-                        let py = CGFloat(y) * cellSize
-                        var path = Path()
-                        path.move(to: CGPoint(x: 0, y: py))
-                        path.addLine(to: CGPoint(x: size.width, y: py))
-                        context.stroke(path, with: .color(Color.white.opacity(0.1)), lineWidth: 0.5)
-                    }
-                }
-                .frame(width: boardWidth, height: boardHeight)
+                            let rect = CGRect(x: cellX, y: cellY, width: cellSize, height: cellSize)
+                            context.fill(Path(rect), with: .color(Color(red: 0.42, green: 0.23, blue: 0.10))) // #6B3A19
 
-                // 1. Solid blocks (Ground & Walls)
-                ForEach(Array(level.solidPositions), id: \.self) { pos in
-                    let isTopSurface = !level.solidPositions.contains(Position(x: pos.x, y: pos.y - 1))
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(baseDirt)
-                        if isTopSurface {
-                            VStack(spacing: 0) {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(topTrim)
-                                    .frame(height: cellSize * 0.28)
-                                Spacer()
+                            // Top surface organic highlight if exposed
+                            if !level.solidPositions.contains(Position(x: pos.x, y: pos.y - 1)) {
+                                let trimH = cellSize * 0.16
+                                let trimRect = CGRect(x: cellX, y: cellY, width: cellSize, height: trimH)
+                                context.fill(Path(trimRect), with: .color(Color(red: 0.55, green: 0.30, blue: 0.13))) // #8B4D22
+
+                                // Wavy line
+                                var wavy = Path()
+                                wavy.move(to: CGPoint(x: cellX, y: cellY + trimH))
+                                wavy.addQuadCurve(to: CGPoint(x: cellX + cellSize * 0.5, y: cellY + trimH), control: CGPoint(x: cellX + cellSize * 0.25, y: cellY + trimH - 2))
+                                wavy.addQuadCurve(to: CGPoint(x: cellX + cellSize, y: cellY + trimH), control: CGPoint(x: cellX + cellSize * 0.75, y: cellY + trimH + 2))
+                                context.stroke(wavy, with: .color(Color(red: 0.23, green: 0.11, blue: 0.04)), lineWidth: 2.2)
+                            }
+                        }
+
+                        // Pass 2: Draw bold cartoon outlines along exposed edges
+                        for pos in level.solidPositions {
+                            let cellX = CGFloat(pos.x) * cellSize
+                            let cellY = CGFloat(pos.y) * cellSize
+
+                            let hasTop = level.solidPositions.contains(Position(x: pos.x, y: pos.y - 1))
+                            let hasBottom = level.solidPositions.contains(Position(x: pos.x, y: pos.y + 1))
+                            let hasLeft = level.solidPositions.contains(Position(x: pos.x - 1, y: pos.y))
+                            let hasRight = level.solidPositions.contains(Position(x: pos.x + 1, y: pos.y))
+
+                            let darkBorder = Color(red: 0.13, green: 0.06, blue: 0.02)
+
+                            if !hasTop {
+                                var p = Path()
+                                p.move(to: CGPoint(x: cellX - outlineWidth/2, y: cellY))
+                                p.addLine(to: CGPoint(x: cellX + cellSize + outlineWidth/2, y: cellY))
+                                context.stroke(p, with: .color(darkBorder), lineWidth: outlineWidth)
+                            }
+                            if !hasBottom {
+                                var p = Path()
+                                p.move(to: CGPoint(x: cellX - outlineWidth/2, y: cellY + cellSize))
+                                p.addLine(to: CGPoint(x: cellX + cellSize + outlineWidth/2, y: cellY + cellSize))
+                                context.stroke(p, with: .color(darkBorder), lineWidth: outlineWidth)
+                            }
+                            if !hasLeft {
+                                var p = Path()
+                                p.move(to: CGPoint(x: cellX, y: cellY - outlineWidth/2))
+                                p.addLine(to: CGPoint(x: cellX, y: cellY + cellSize + outlineWidth/2))
+                                context.stroke(p, with: .color(darkBorder), lineWidth: outlineWidth)
+                            }
+                            if !hasRight {
+                                var p = Path()
+                                p.move(to: CGPoint(x: cellX + cellSize, y: cellY - outlineWidth/2))
+                                p.addLine(to: CGPoint(x: cellX + cellSize, y: cellY + cellSize + outlineWidth/2))
+                                context.stroke(p, with: .color(darkBorder), lineWidth: outlineWidth)
                             }
                         }
                     }
-                    .frame(width: cellSize - 1, height: cellSize - 1)
-                    .position(
-                        x: CGFloat(pos.x) * cellSize + cellSize / 2,
-                        y: CGFloat(pos.y) * cellSize + cellSize / 2
+                    .frame(width: boardWidth, height: boardHeight)
+
+                    // 3. Spikes
+                    ForEach(Array(level.spikePositions), id: \.self) { pos in
+                        SpikeView(cellSize: cellSize)
+                            .position(
+                                x: CGFloat(pos.x) * cellSize + cellSize / 2,
+                                y: CGFloat(pos.y) * cellSize + cellSize / 2
+                            )
+                    }
+
+                    // 4. Black Spiral Vortex Exit Portal
+                    if let portal = level.portalPosition {
+                        BlackSpiralPortalView(cellSize: cellSize, isUnlocked: state.isPortalUnlocked, rotation: portalRotation)
+                            .position(
+                                x: CGFloat(portal.x) * cellSize + cellSize / 2,
+                                y: CGFloat(portal.y) * cellSize + cellSize / 2
+                            )
+                    }
+
+                    // 5. Glossy Red Apples
+                    ForEach(Array(state.remainingApples), id: \.self) { pos in
+                        CartoonAppleView(cellSize: cellSize, scale: applePulse)
+                            .position(
+                                x: CGFloat(pos.x) * cellSize + cellSize / 2,
+                                y: CGFloat(pos.y) * cellSize + cellSize / 2
+                            )
+                    }
+
+                    // 6. The Apple Worm with Purple Lips & Googly Eyes
+                    AppleWormSnakeView(
+                        snake: state.snake,
+                        facing: state.facingDirection,
+                        skin: skin,
+                        isDead: state.isDead,
+                        cellSize: cellSize
                     )
                 }
-
-                // 2. Spikes
-                ForEach(Array(level.spikePositions), id: \.self) { pos in
-                    SpikeView(cellSize: cellSize)
-                        .position(
-                            x: CGFloat(pos.x) * cellSize + cellSize / 2,
-                            y: CGFloat(pos.y) * cellSize + cellSize / 2
-                        )
-                }
-
-                // 3. Portal
-                if let portal = level.portalPosition {
-                    PortalView(cellSize: cellSize, isUnlocked: state.isPortalUnlocked, rotation: portalRotation)
-                        .position(
-                            x: CGFloat(portal.x) * cellSize + cellSize / 2,
-                            y: CGFloat(portal.y) * cellSize + cellSize / 2
-                        )
-                }
-
-                // 4. Apples
-                ForEach(Array(state.remainingApples), id: \.self) { pos in
-                    AppleView(cellSize: cellSize, scale: applePulse)
-                        .position(
-                            x: CGFloat(pos.x) * cellSize + cellSize / 2,
-                            y: CGFloat(pos.y) * cellSize + cellSize / 2
-                        )
-                }
-
-                // 5. 2.5D Animated Cute Snake
-                SnakeView(
-                    snake: state.snake,
-                    facing: state.facingDirection,
-                    skin: skin,
-                    cellSize: cellSize,
-                    tongueFlick: tongueFlick
-                )
+                .frame(width: boardWidth, height: boardHeight)
+                .offset(x: offsetX, y: offsetY)
             }
-            .frame(width: boardWidth, height: boardHeight)
-            .offset(x: offsetX, y: offsetY)
         }
         .onAppear {
-            withAnimation(.linear(duration: 3.0).repeatForever(autoreverses: false)) {
+            withAnimation(.linear(duration: 3.5).repeatForever(autoreverses: false)) {
                 portalRotation = 360
             }
-            withAnimation(.easeInOut(duration: 0.65).repeatForever(autoreverses: true)) {
-                applePulse = 1.12
+            withAnimation(.easeInOut(duration: 0.70).repeatForever(autoreverses: true)) {
+                applePulse = 1.08
             }
-            withAnimation(.easeInOut(duration: 0.85).repeatForever(autoreverses: true)) {
-                tongueFlick = 1.0
+        }
+    }
+}
+
+/**
+ * Sunburst Sky Background with comic radial rays and rolling hills.
+ */
+private struct SunburstSkyView: View {
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+
+            ZStack {
+                // Base Sky Gradient
+                LinearGradient(
+                    colors: [Color(red: 0.42, green: 0.76, blue: 0.98), Color(red: 0.22, green: 0.59, blue: 0.93)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                // Sunburst rays
+                Canvas { context, size in
+                    let origin = CGPoint(x: size.width / 2, y: -size.height * 0.1)
+                    let maxDist = hypot(size.width, size.height) * 1.5
+                    let rayCount = 20
+
+                    for i in stride(from: 0, to: rayCount, by: 2) {
+                        let a1 = CGFloat(i) * 2 * .pi / CGFloat(rayCount)
+                        let a2 = CGFloat(i + 1) * 2 * .pi / CGFloat(rayCount)
+
+                        var ray = Path()
+                        ray.move(to: origin)
+                        ray.addLine(to: CGPoint(x: origin.x + cos(a1) * maxDist, y: origin.y + sin(a1) * maxDist))
+                        ray.addLine(to: CGPoint(x: origin.x + cos(a2) * maxDist, y: origin.y + sin(a2) * maxDist))
+                        ray.closeSubpath()
+
+                        context.fill(ray, with: .color(Color.white.opacity(0.13)))
+                    }
+                }
+
+                // Rolling Green Hills at bottom
+                VStack {
+                    Spacer()
+                    Canvas { context, size in
+                        let h = size.height
+                        let w = size.width
+
+                        var hillBack = Path()
+                        hillBack.move(to: CGPoint(x: 0, y: h))
+                        hillBack.addLine(to: CGPoint(x: 0, y: h * 0.4))
+                        hillBack.addCurve(to: CGPoint(x: w * 0.7, y: h * 0.35), control1: CGPoint(x: w * 0.25, y: h * 0.2), control2: CGPoint(x: w * 0.45, y: h * 0.45))
+                        hillBack.addCurve(to: CGPoint(x: w, y: h * 0.38), control1: CGPoint(x: w * 0.85, y: h * 0.25), control2: CGPoint(x: w * 0.95, y: h * 0.4))
+                        hillBack.addLine(to: CGPoint(x: w, y: h))
+                        hillBack.closeSubpath()
+                        context.fill(hillBack, with: .color(Color(red: 0.33, green: 0.60, blue: 0.10)))
+
+                        var hillFront = Path()
+                        hillFront.move(to: CGPoint(x: 0, y: h))
+                        hillFront.addLine(to: CGPoint(x: 0, y: h * 0.55))
+                        hillFront.addCurve(to: CGPoint(x: w * 0.65, y: h * 0.50), control1: CGPoint(x: w * 0.2, y: h * 0.35), control2: CGPoint(x: w * 0.4, y: h * 0.6))
+                        hillFront.addCurve(to: CGPoint(x: w, y: h * 0.48), control1: CGPoint(x: w * 0.8, y: h * 0.38), control2: CGPoint(x: w * 0.92, y: h * 0.55))
+                        hillFront.addLine(to: CGPoint(x: w, y: h))
+                        hillFront.closeSubpath()
+                        context.fill(hillFront, with: .color(Color(red: 0.44, green: 0.71, blue: 0.15)))
+                    }
+                    .frame(height: h * 0.22)
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+/**
+ * Black Spiral Vortex Portal matching reference screenshot.
+ */
+private struct BlackSpiralPortalView: View {
+    let cellSize: CGFloat
+    let isUnlocked: Bool
+    let rotation: Double
+
+    var body: some View {
+        let r = cellSize * 0.44
+
+        ZStack {
+            // Dark base background with outer border
+            Circle()
+                .fill(Color(red: 0.09, green: 0.09, blue: 0.09))
+                .frame(width: r * 2, height: r * 2)
+                .overlay(
+                    Circle().stroke(Color(red: 0.13, green: 0.06, blue: 0.02), lineWidth: 3.5)
+                )
+
+            // Swirl Archimedean Spiral Lines
+            Canvas { context, size in
+                let cx = size.width / 2
+                let cy = size.height / 2
+                let spiralRadius = r * 0.95
+
+                var path = Path()
+                let points = 70
+                let turns: CGFloat = 3.2
+
+                for i in 0...points {
+                    let t = CGFloat(i) / CGFloat(points)
+                    let angle = t * 2 * .pi * turns
+                    let curR = spiralRadius * (1.0 - t)
+                    let px = cx + cos(angle) * curR
+                    let py = cy + sin(angle) * curR
+                    if i == 0 { path.move(to: CGPoint(x: px, y: py)) }
+                    else { path.addLine(to: CGPoint(x: px, y: py)) }
+                }
+
+                context.stroke(path, with: .color(isUnlocked ? Color.gray : Color(white: 0.25)), lineWidth: cellSize * 0.08)
+            }
+            .frame(width: r * 2, height: r * 2)
+            .rotationEffect(.degrees(isUnlocked ? rotation : 0))
+
+            // Center Dark Hole
+            Circle()
+                .fill(Color.black)
+                .frame(width: r * 0.55, height: r * 0.55)
+
+            if !isUnlocked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: cellSize * 0.30, weight: .bold))
+                    .foregroundColor(.white.opacity(0.85))
+            }
+        }
+    }
+}
+
+/**
+ * Cartoon Red Apple with stem, green leaf, specular highlight, and bold outline.
+ */
+private struct CartoonAppleView: View {
+    let cellSize: CGFloat
+    let scale: CGFloat
+
+    var body: some View {
+        let r = cellSize * 0.36
+
+        ZStack {
+            // Wooden Curved Stem
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: -r + 3))
+                path.addQuadCurve(to: CGPoint(x: -cellSize * 0.05, y: -r - cellSize * 0.18), control: CGPoint(x: -cellSize * 0.08, y: -r - cellSize * 0.12))
+                path.addLine(to: CGPoint(x: cellSize * 0.02, y: -r - cellSize * 0.18))
+                path.addQuadCurve(to: CGPoint(x: cellSize * 0.03, y: -r + 3), control: CGPoint(x: 0, y: -r - cellSize * 0.10))
+                path.closeSubpath()
+            }
+            .fill(Color(red: 0.26, green: 0.13, blue: 0.03))
+            .overlay(
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: -r + 3))
+                    path.addQuadCurve(to: CGPoint(x: -cellSize * 0.05, y: -r - cellSize * 0.18), control: CGPoint(x: -cellSize * 0.08, y: -r - cellSize * 0.12))
+                }.stroke(Color.black, lineWidth: 1.5)
+            )
+
+            // Green Leaf pointing right
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: -r - cellSize * 0.05))
+                path.addQuadCurve(to: CGPoint(x: cellSize * 0.24, y: -r - cellSize * 0.08), control: CGPoint(x: cellSize * 0.16, y: -r - cellSize * 0.18))
+                path.addQuadCurve(to: CGPoint(x: 0, y: -r - cellSize * 0.05), control: CGPoint(x: cellSize * 0.12, y: -r - cellSize * 0.01))
+                path.closeSubpath()
+            }
+            .fill(Color(red: 0.12, green: 0.66, blue: 0.16))
+            .overlay(
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: -r - cellSize * 0.05))
+                    path.addQuadCurve(to: CGPoint(x: cellSize * 0.24, y: -r - cellSize * 0.08), control: CGPoint(x: cellSize * 0.16, y: -r - cellSize * 0.18))
+                }.stroke(Color.black, lineWidth: 1.5)
+            )
+
+            // Red Apple Fruit Body with bold outline
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [Color(red: 1.0, green: 0.64, blue: 0.64), Color(red: 0.85, green: 0.10, blue: 0.10), Color(red: 0.58, green: 0.04, blue: 0.04)],
+                        center: .topLeading,
+                        startRadius: 2,
+                        endRadius: r * 1.3
+                    )
+                )
+                .frame(width: r * 2, height: r * 2)
+                .overlay(
+                    Circle().stroke(Color.black, lineWidth: 2.8)
+                )
+                .scaleEffect(scale)
+
+            // Specular crescent shine
+            Circle()
+                .trim(from: 0.45, to: 0.75)
+                .stroke(Color.white.opacity(0.6), lineWidth: 3.5)
+                .frame(width: r * 1.3, height: r * 1.3)
+                .offset(x: -r * 0.2, y: -r * 0.2)
+        }
+    }
+}
+
+/**
+ * The Apple Worm with big googly eyes, PURPLE/MAGENTA LIPS, and lime-green underbelly.
+ */
+private struct AppleWormSnakeView: View {
+    let snake: [Position]
+    let facing: Direction
+    let skin: SnakeSkin
+    let isDead: Bool
+    let cellSize: CGFloat
+
+    var body: some View {
+        let bodyRadius = cellSize * 0.40
+
+        ZStack {
+            // Pass 1: Bold black outline behind entire snake
+            ForEach(0..<snake.count, id: \.self) { i in
+                let pos = snake[i]
+                Circle()
+                    .fill(Color.black)
+                    .frame(width: (bodyRadius + 3.5) * 2, height: (bodyRadius + 3.5) * 2)
+                    .position(x: CGFloat(pos.x) * cellSize + cellSize / 2, y: CGFloat(pos.y) * cellSize + cellSize / 2)
+            }
+
+            // Pass 2: Green body segments
+            ForEach(0..<snake.count, id: \.self) { i in
+                let pos = snake[i]
+                let isHead = (i == 0)
+
+                ZStack {
+                    Circle()
+                        .fill(isHead ? skin.headColor : skin.bodyColor)
+                        .frame(width: bodyRadius * 2, height: bodyRadius * 2)
+
+                    if isHead {
+                        // Lime throat underbelly
+                        Circle()
+                            .trim(from: 0.2, to: 0.8)
+                            .stroke(skin.throatColor, lineWidth: bodyRadius * 0.35)
+                            .frame(width: bodyRadius * 1.4, height: bodyRadius * 1.4)
+
+                        // THE ICONIC PURPLE LIPS!
+                        PurpleLipsView(bodyRadius: bodyRadius, facing: facing, lipsColor: skin.lipsColor)
+
+                        // GOOGLY EYES
+                        GooglyEyesView(bodyRadius: bodyRadius, facing: facing, isDead: isDead)
+                    }
+                }
+                .position(x: CGFloat(pos.x) * cellSize + cellSize / 2, y: CGFloat(pos.y) * cellSize + cellSize / 2)
+            }
+        }
+    }
+}
+
+private struct PurpleLipsView: View {
+    let bodyRadius: CGFloat
+    let facing: Direction
+    let lipsColor: Color
+
+    var body: some View {
+        let lipW = bodyRadius * 0.48
+        let lipH = bodyRadius * 0.72
+
+        let offset: (x: CGFloat, y: CGFloat) = {
+            switch facing {
+            case .left: return (-bodyRadius - lipW * 0.25, bodyRadius * 0.12)
+            case .right: return (bodyRadius + lipW * 0.25, bodyRadius * 0.12)
+            case .up: return (0, -bodyRadius - lipH * 0.25)
+            case .down: return (0, bodyRadius + lipH * 0.25)
+            }
+        }()
+
+        RoundedRectangle(cornerRadius: lipW / 2)
+            .fill(lipsColor)
+            .frame(width: lipW, height: lipH)
+            .overlay(
+                RoundedRectangle(cornerRadius: lipW / 2)
+                    .stroke(Color.black, lineWidth: 2.2)
+            )
+            .offset(x: offset.x, y: offset.y)
+    }
+}
+
+private struct GooglyEyesView: View {
+    let bodyRadius: CGFloat
+    let facing: Direction
+    let isDead: Bool
+
+    var body: some View {
+        let eyeR = bodyRadius * 0.38
+        let pupilR = eyeR * 0.50
+        let eyeSpacing = bodyRadius * 0.34
+        let eyeY = -bodyRadius * 0.65
+
+        let pupilOffset: (x: CGFloat, y: CGFloat) = {
+            switch facing {
+            case .up: return (0, -eyeR * 0.35)
+            case .down: return (0, eyeR * 0.35)
+            case .left: return (-eyeR * 0.40, 0)
+            case .right: return (eyeR * 0.40, 0)
+            }
+        }()
+
+        ZStack {
+            // Left Eye
+            EyeSingleView(eyeR: eyeR, pupilR: pupilR, pupilOffset: pupilOffset, isDead: isDead)
+                .offset(x: -eyeSpacing, y: eyeY)
+
+            // Right Eye
+            EyeSingleView(eyeR: eyeR, pupilR: pupilR, pupilOffset: pupilOffset, isDead: isDead)
+                .offset(x: eyeSpacing, y: eyeY)
+        }
+    }
+}
+
+private struct EyeSingleView: View {
+    let eyeR: CGFloat
+    let pupilR: CGFloat
+    let pupilOffset: (x: CGFloat, y: CGFloat)
+    let isDead: Bool
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: eyeR * 2, height: eyeR * 2)
+                .overlay(
+                    Circle().stroke(Color.black, lineWidth: 2.2)
+                )
+
+            if isDead {
+                Image(systemName: "xmark")
+                    .font(.system(size: eyeR * 0.9, weight: .black))
+                    .foregroundColor(.black)
+            } else {
+                Circle()
+                    .fill(Color(white: 0.08))
+                    .frame(width: pupilR * 2, height: pupilR * 2)
+                    .offset(x: pupilOffset.x, y: pupilOffset.y)
+
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: pupilR * 0.7, height: pupilR * 0.7)
+                    .offset(x: pupilOffset.x - pupilR * 0.25, y: pupilOffset.y - pupilR * 0.25)
             }
         }
     }
@@ -145,222 +501,29 @@ private struct SpikeView: View {
     let cellSize: CGFloat
 
     var body: some View {
-        ZStack {
-            Path { path in
-                let w = cellSize * 0.82
-                let h = cellSize * 0.75
-                path.move(to: CGPoint(x: -w/2, y: h/2))
-                path.addLine(to: CGPoint(x: 0, y: -h/2))
-                path.addLine(to: CGPoint(x: w/2, y: h/2))
-                path.closeSubpath()
-            }
-            .fill(
-                LinearGradient(
-                    colors: [GameTheme.spikePoint, GameTheme.spikeBase],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+        let w = cellSize * 0.85
+        let h = cellSize * 0.78
+
+        Path { path in
+            path.move(to: CGPoint(x: -w / 2, y: h / 2))
+            path.addLine(to: CGPoint(x: 0, y: -h / 2))
+            path.addLine(to: CGPoint(x: w / 2, y: h / 2))
+            path.closeSubpath()
+        }
+        .fill(
+            LinearGradient(
+                colors: [Color(red: 0.90, green: 0.22, blue: 0.21), Color(red: 0.38, green: 0.49, blue: 0.55)],
+                startPoint: .top,
+                endPoint: .bottom
             )
-        }
-    }
-}
-
-private struct PortalView: View {
-    let cellSize: CGFloat
-    let isUnlocked: Bool
-    let rotation: Double
-
-    var body: some View {
-        ZStack {
-            // Glow
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [isUnlocked ? GameTheme.portalGlow.opacity(0.85) : Color.gray.opacity(0.3), Color.clear],
-                        center: .center,
-                        startRadius: cellSize * 0.1,
-                        endRadius: cellSize * 0.65
-                    )
-                )
-                .frame(width: cellSize * 1.3, height: cellSize * 1.3)
-
-            // Swirl Ring
-            Circle()
-                .strokeBorder(
-                    AngularGradient(
-                        gradient: Gradient(colors: isUnlocked ? [GameTheme.portalOuter, GameTheme.portalGlow, GameTheme.portalInner, GameTheme.portalOuter] : [Color.gray, Color.black, Color.gray]),
-                        center: .center
-                    ),
-                    lineWidth: cellSize * 0.16
-                )
-                .frame(width: cellSize * 0.85, height: cellSize * 0.85)
-                .rotationEffect(.degrees(isUnlocked ? rotation : 0))
-
-            // Center Abyss
-            Circle()
-                .fill(GameTheme.portalInner)
-                .frame(width: cellSize * 0.55, height: cellSize * 0.55)
-
-            if !isUnlocked {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: cellSize * 0.32, weight: .bold))
-                    .foregroundColor(.white.opacity(0.9))
-            }
-        }
-    }
-}
-
-private struct AppleView: View {
-    let cellSize: CGFloat
-    let scale: CGFloat
-
-    var body: some View {
-        ZStack {
-            // Wooden Stem
-            RoundedRectangle(cornerRadius: 1)
-                .fill(GameTheme.appleStem)
-                .frame(width: cellSize * 0.08, height: cellSize * 0.20)
-                .offset(x: 0, y: -cellSize * 0.30)
-
-            // Green Leaf
-            Capsule()
-                .fill(GameTheme.appleLeaf)
-                .frame(width: cellSize * 0.18, height: cellSize * 0.1)
-                .rotationEffect(.degrees(-35))
-                .offset(x: cellSize * 0.12, y: -cellSize * 0.30)
-
-            // Fruit Body
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [GameTheme.appleGleam, GameTheme.appleRed, Color(red: 0.55, green: 0.05, blue: 0.05)],
-                        center: .topLeading,
-                        startRadius: 2,
-                        endRadius: cellSize * 0.42
-                    )
-                )
-                .frame(width: cellSize * 0.68, height: cellSize * 0.68)
-                .scaleEffect(scale)
-                .shadow(color: GameTheme.appleRed.opacity(0.4), radius: 4, x: 0, y: 2)
-        }
-    }
-}
-
-private struct SnakeView: View {
-    let snake: [Position]
-    let facing: Direction
-    let skin: SnakeSkin
-    let cellSize: CGFloat
-    let tongueFlick: CGFloat
-
-    var body: some View {
-        ZStack {
-            ForEach(0..<snake.count, id: \.self) { index in
-                let pos = snake[index]
-                let isHead = index == 0
-                let isTail = index == snake.count - 1
-                let segSize = cellSize * (isHead ? 0.90 : (isTail ? 0.70 : 0.82))
-
-                let segColor = isHead ? skin.headColor : (isTail ? skin.tailColor : skin.bodyColor)
-
-                ZStack {
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [skin.accentColor, segColor, segColor.opacity(0.85)],
-                                center: .topLeading,
-                                startRadius: 2,
-                                endRadius: segSize * 0.6
-                            )
-                        )
-                        .frame(width: segSize, height: segSize)
-                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-
-                    if isHead {
-                        SnakeFaceView(facing: facing, skin: skin, size: segSize, tongueFlick: tongueFlick)
-                    } else {
-                        Circle()
-                            .fill(skin.accentColor.opacity(0.55))
-                            .frame(width: segSize * 0.35, height: segSize * 0.35)
-                    }
-                }
-                .position(
-                    x: CGFloat(pos.x) * cellSize + cellSize / 2,
-                    y: CGFloat(pos.y) * cellSize + cellSize / 2
-                )
-                .animation(.spring(response: 0.2, dampingFraction: 0.75), value: pos)
-            }
-        }
-    }
-}
-
-private struct SnakeFaceView: View {
-    let facing: Direction
-    let skin: SnakeSkin
-    let size: CGFloat
-    let tongueFlick: CGFloat
-
-    var body: some View {
-        let eyeSize = size * 0.32
-        let pupilSize = eyeSize * 0.52
-
-        let pupilOffset: (x: CGFloat, y: CGFloat) = {
-            switch facing {
-            case .up: return (0, -eyeSize * 0.22)
-            case .down: return (0, eyeSize * 0.22)
-            case .left: return (-eyeSize * 0.22, 0)
-            case .right: return (eyeSize * 0.22, 0)
-            }
-        }()
-
-        let eyeSpacing = size * 0.24
-        let eyeVertical = -size * 0.08
-
-        ZStack {
-            // Little forked tongue
-            if tongueFlick > 0.4 {
-                let tongueLength = size * 0.28 * tongueFlick
-                Capsule()
-                    .fill(Color(red: 1.0, green: 0.16, blue: 0.30))
-                    .frame(width: 3, height: tongueLength)
-                    .offset(x: pupilOffset.x * 2.5, y: pupilOffset.y * 2.5)
-            }
-
-            // Left Eye
-            ZStack {
-                Circle().fill(skin.eyeColor)
-                Circle().fill(skin.pupilColor)
-                    .frame(width: pupilSize, height: pupilSize)
-                    .offset(x: pupilOffset.x, y: pupilOffset.y)
-                Circle().fill(Color.white)
-                    .frame(width: pupilSize * 0.35, height: pupilSize * 0.35)
-                    .offset(x: pupilOffset.x - 1, y: pupilOffset.y - 1)
-            }
-            .frame(width: eyeSize, height: eyeSize)
-            .offset(x: -eyeSpacing, y: eyeVertical)
-
-            // Right Eye
-            ZStack {
-                Circle().fill(skin.eyeColor)
-                Circle().fill(skin.pupilColor)
-                    .frame(width: pupilSize, height: pupilSize)
-                    .offset(x: pupilOffset.x, y: pupilOffset.y)
-                Circle().fill(Color.white)
-                    .frame(width: pupilSize * 0.35, height: pupilSize * 0.35)
-                    .offset(x: pupilOffset.x - 1, y: pupilOffset.y - 1)
-            }
-            .frame(width: eyeSize, height: eyeSize)
-            .offset(x: eyeSpacing, y: eyeVertical)
-
-            // Rosy cheeks
-            Circle()
-                .fill(skin.cheekColor)
-                .frame(width: eyeSize * 0.65, height: eyeSize * 0.65)
-                .offset(x: -eyeSpacing * 1.35, y: eyeVertical + eyeSize * 0.72)
-            Circle()
-                .fill(skin.cheekColor)
-                .frame(width: eyeSize * 0.65, height: eyeSize * 0.65)
-                .offset(x: eyeSpacing * 1.35, y: eyeVertical + eyeSize * 0.72)
-        }
+        )
+        .overlay(
+            Path { path in
+                path.move(to: CGPoint(x: -w / 2, y: h / 2))
+                path.addLine(to: CGPoint(x: 0, y: -h / 2))
+                path.addLine(to: CGPoint(x: w / 2, y: h / 2))
+                path.closeSubpath()
+            }.stroke(Color(red: 0.13, green: 0.06, blue: 0.02), lineWidth: 3.2)
+        )
     }
 }

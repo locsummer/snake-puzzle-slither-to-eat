@@ -5,6 +5,7 @@ public final class LevelRepository: ObservableObject {
 
     @Published public private(set) var levels: [Level] = []
     @Published public private(set) var unlockedLevelMax: Int = 1
+    @Published public private(set) var highScore: Int = 0
     @Published public var selectedSkin: SnakeSkin = .emerald {
         didSet {
             UserDefaults.standard.set(selectedSkin.rawValue, forKey: skinKey)
@@ -21,13 +22,25 @@ public final class LevelRepository: ObservableObject {
     private let bestMovesKeyPrefix = "SnakePuzzle_BestMoves_v2_"
     private let skinKey = "SnakePuzzle_Skin"
     private let dpadKey = "SnakePuzzle_DpadLeft"
+    private let highScoreKey = "SnakePuzzle_HighScore"
 
     public init() {
         self.unlockedLevelMax = max(1, UserDefaults.standard.integer(forKey: unlockedKey))
         let savedSkin = UserDefaults.standard.string(forKey: skinKey) ?? "emerald"
         self.selectedSkin = SnakeSkin(rawValue: savedSkin) ?? .emerald
         self.isDpadOnLeft = UserDefaults.standard.object(forKey: dpadKey) as? Bool ?? true
+        self.highScore = UserDefaults.standard.integer(forKey: highScoreKey)
         self.levels = loadLevels()
+    }
+
+    @discardableResult
+    public func recordScore(_ score: Int) -> Bool {
+        if score > highScore {
+            highScore = score
+            UserDefaults.standard.set(score, forKey: highScoreKey)
+            return true
+        }
+        return false
     }
 
     public func loadLevels() -> [Level] {

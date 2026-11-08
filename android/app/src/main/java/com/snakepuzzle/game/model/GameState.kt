@@ -24,11 +24,17 @@ data class GameState(
     val facingDirection: Direction = Direction.RIGHT,
     val noticeMessage: String? = null,
     val isPortalUnlocked: Boolean = false,
-    val lastEatenPosition: Position? = null
+    val lastEatenPosition: Position? = null,
+    val score: Int = 0,
+    val highScore: Int = 0,
+    val levelScore: Int = 0
 ) {
     val head: Position
         get() = snake.firstOrNull() ?: Position(0, 0)
 
     val isApplesCollected: Boolean
         get() = remainingApples.isEmpty()
+
+    val isDead: Boolean
+        get() = status is GameStatus.Lost
 }

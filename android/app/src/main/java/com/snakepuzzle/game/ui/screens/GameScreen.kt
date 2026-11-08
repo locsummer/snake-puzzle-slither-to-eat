@@ -5,7 +5,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import com.snakepuzzle.game.audio.SoundManager
@@ -24,8 +23,17 @@ fun GameScreen() {
     val soundManager = remember { SoundManager.getInstance(context) }
 
     var currentLevelIndex by remember { mutableIntStateOf(0) }
+    var currentRunScore by remember { mutableIntStateOf(0) }
+    var isNewHighScore by remember { mutableStateOf(false) }
+
     val currentLevel = repository.levels.getOrNull(currentLevelIndex) ?: LevelRepository.fallback50Levels[0]
-    val engine = remember(currentLevel) { SnakePuzzleEngine(currentLevel) }
+    val engine = remember(currentLevel, currentRunScore) {
+        SnakePuzzleEngine(
+            level = currentLevel,
+            initialScore = currentRunScore,
+            highScore = repository.highScore
+        )
+    }
 
     var showLevelSelect by remember { mutableStateOf(false) }
     var showSkinSelect by remember { mutableStateOf(false) }
@@ -36,6 +44,7 @@ fun GameScreen() {
         when (result) {
             is SnakePuzzleEngine.MoveResult.LevelWon -> {
                 soundManager.playWin()
+                isNewHighScore = repository.recordScore(result.totalScore)
                 repository.recordWin(
                     levelId = currentLevel.id,
                     moves = engine.currentState.movesCount,
@@ -45,6 +54,7 @@ fun GameScreen() {
             }
             is SnakePuzzleEngine.MoveResult.LevelLost -> {
                 soundManager.playSpike()
+                repository.recordScore(result.finalScore)
             }
             is SnakePuzzleEngine.MoveResult.AppleEaten -> {
                 soundManager.playEat()
@@ -64,20 +74,7 @@ fun GameScreen() {
         }
     }
 
-    // World-based background gradient
-    val (skyTop, skyBottom) = when (currentLevel.world) {
-        "Crystal Caverns" -> Pair(CavernSkyTop, CavernSkyBottom)
-        "Sunken Ruins" -> Pair(RuinsSkyTop, RuinsSkyBottom)
-        "Sky Citadel" -> Pair(SkyTop, SkyBottom)
-        "Magma Core" -> Pair(MagmaSkyTop, MagmaSkyBottom)
-        else -> Pair(MeadowSkyTop, MeadowSkyBottom)
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(colors = listOf(skyTop, skyBottom)))
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         LandscapeGameHUD(
             level = currentLevel,
             state = engine.currentState,
@@ -166,8 +163,13 @@ fun GameScreen() {
                     moves = moves,
                     optimalMoves = currentLevel.optimalMoves,
                     stars = stars,
+                    levelScore = engine.currentState.levelScore,
+                    totalScore = engine.currentState.score,
+                    highScore = repository.highScore,
+                    isNewHighScore = isNewHighScore,
                     hasNextLevel = currentLevelIndex + 1 < repository.levels.size,
                     onNextLevel = {
+                        currentRunScore = engine.currentState.score
                         if (currentLevelIndex + 1 < repository.levels.size) {
                             currentLevelIndex++
                         }
@@ -184,11 +186,16 @@ fun GameScreen() {
             is GameStatus.Lost -> {
                 DefeatDialog(
                     reason = status.reason,
+                    score = engine.currentState.score,
+                    highScore = repository.highScore,
                     canUndo = engine.canUndo,
                     onUndo = {
                         engine.undo()
                     },
-                    onRestart = {
+                    onRestartFromBeginning = {
+                        // "chết thì chơi lại từ đầu" -> Reset to Level 1 and 0 score!
+                        currentRunScore = 0
+                        currentLevelIndex = 0
                         engine.reset()
                     },
                     onSelectLevel = {

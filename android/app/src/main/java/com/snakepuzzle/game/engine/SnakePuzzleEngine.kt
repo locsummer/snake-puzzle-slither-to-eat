@@ -4,8 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.snakepuzzle.game.model.*
+import kotlin.math.max
 
-class SnakePuzzleEngine(val level: Level) {
+class SnakePuzzleEngine(
+    val level: Level,
+    val initialScore: Int = 0,
+    val highScore: Int = 0
+) {
     val solidPositions: Set<Position> = level.solidPositions
     val spikePositions: Set<Position> = level.spikePositions
     val portalPosition: Position? = level.portalPosition
@@ -44,7 +49,10 @@ class SnakePuzzleEngine(val level: Level) {
             status = GameStatus.Playing,
             facingDirection = initialFacing,
             noticeMessage = if (portalUnlocked) "Portal is open! Reach the vortex!" else null,
-            isPortalUnlocked = portalUnlocked
+            isPortalUnlocked = portalUnlocked,
+            score = initialScore,
+            highScore = highScore,
+            levelScore = 0
         )
     }
 
@@ -65,10 +73,10 @@ class SnakePuzzleEngine(val level: Level) {
     sealed class MoveResult {
         object Blocked : MoveResult()
         object Moved : MoveResult()
-        data class AppleEaten(val pos: Position, val portalJustOpened: Boolean) : MoveResult()
+        data class AppleEaten(val pos: Position, val portalJustOpened: Boolean, val points: Int) : MoveResult()
         object PortalLockedNotice : MoveResult()
-        object LevelWon : MoveResult()
-        data class LevelLost(val reason: String) : MoveResult()
+        data class LevelWon(val earnedScore: Int, val totalScore: Int) : MoveResult()
+        data class LevelLost(val reason: String, val finalScore: Int) : MoveResult()
     }
 
     fun move(direction: Direction): MoveResult {
@@ -116,9 +124,11 @@ class SnakePuzzleEngine(val level: Level) {
 
         val nextApples = currentState.remainingApples.toMutableSet()
         var appleEatenThisTurn = false
+        var nextLevelScore = currentState.levelScore
         if (isEatingApple) {
             nextApples.remove(newHead)
             appleEatenThisTurn = true
+            nextLevelScore += 100 // +100 points for eating an apple
         }
 
         val isPortalNowUnlocked = nextApples.isEmpty()
@@ -132,7 +142,7 @@ class SnakePuzzleEngine(val level: Level) {
         var nextStatus: GameStatus = GameStatus.Playing
 
         // Check if head moved onto portal
-        var reachedPortal = (portalPosition != null && newHead == portalPosition)
+        val reachedPortal = (portalPosition != null && newHead == portalPosition)
         if (reachedPortal) {
             if (isPortalNowUnlocked) {
                 nextStatus = GameStatus.Won
@@ -200,22 +210,36 @@ class SnakePuzzleEngine(val level: Level) {
             }
         }
 
+        val newMovesCount = currentState.movesCount + 1
+
+        // Calculate score bonus if won
+        var totalRunScore = initialScore + nextLevelScore
+        if (nextStatus is GameStatus.Won) {
+            val optimalBonus = max(0, (level.optimalMoves * 2 - newMovesCount) * 20)
+            val winBonus = 500 + optimalBonus
+            nextLevelScore += winBonus
+            totalRunScore = initialScore + nextLevelScore
+        }
+
         currentState = GameState(
             snake = resolvedSnake,
             remainingApples = nextApples,
-            movesCount = currentState.movesCount + 1,
+            movesCount = newMovesCount,
             status = nextStatus,
             facingDirection = direction,
             noticeMessage = notice,
             isPortalUnlocked = isPortalNowUnlocked,
-            lastEatenPosition = if (appleEatenThisTurn) newHead else null
+            lastEatenPosition = if (appleEatenThisTurn) newHead else null,
+            score = totalRunScore,
+            highScore = max(highScore, totalRunScore),
+            levelScore = nextLevelScore
         )
 
         return when (nextStatus) {
-            is GameStatus.Won -> MoveResult.LevelWon
-            is GameStatus.Lost -> MoveResult.LevelLost(nextStatus.reason)
+            is GameStatus.Won -> MoveResult.LevelWon(nextLevelScore, totalRunScore)
+            is GameStatus.Lost -> MoveResult.LevelLost(nextStatus.reason, totalRunScore)
             is GameStatus.Playing -> {
-                if (appleEatenThisTurn) MoveResult.AppleEaten(newHead, portalJustOpened)
+                if (appleEatenThisTurn) MoveResult.AppleEaten(newHead, portalJustOpened, 100)
                 else if (reachedPortal && !isPortalNowUnlocked) MoveResult.PortalLockedNotice
                 else MoveResult.Moved
             }

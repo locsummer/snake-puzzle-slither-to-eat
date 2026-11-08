@@ -5,6 +5,8 @@ public struct GameView: View {
     @StateObject private var sound = SoundManager.shared
 
     @State private var currentLevelIndex: Int = 0
+    @State private var currentRunScore: Int = 0
+    @State private var isNewHighScore: Bool = false
     @State private var engine: SnakePuzzleEngine?
     @State private var showLevelSelect: Bool = false
     @State private var showSkinSelect: Bool = false
@@ -19,14 +21,6 @@ public struct GameView: View {
 
     public var body: some View {
         ZStack {
-            let worldName = currentLevel?.world ?? "Green Meadows"
-            LinearGradient(
-                colors: [GameTheme.skyTop(for: worldName), GameTheme.skyBottom(for: worldName)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
             if let eng = engine, let lvl = currentLevel {
                 LandscapeGameHUD(
                     level: lvl,
@@ -85,8 +79,13 @@ public struct GameView: View {
                         moves: moves,
                         optimalMoves: lvl.optimalMoves,
                         stars: stars,
+                        levelScore: eng.currentState.levelScore,
+                        totalScore: eng.currentState.score,
+                        highScore: repository.highScore,
+                        isNewHighScore: isNewHighScore,
                         hasNextLevel: currentLevelIndex + 1 < repository.levels.count,
                         onNextLevel: {
+                            currentRunScore = eng.currentState.score
                             if currentLevelIndex + 1 < repository.levels.count {
                                 loadLevel(at: currentLevelIndex + 1)
                             }
@@ -102,12 +101,16 @@ public struct GameView: View {
                 case .lost(let reason):
                     DefeatModalView(
                         reason: reason,
+                        score: eng.currentState.score,
+                        highScore: repository.highScore,
                         canUndo: eng.canUndo,
                         onUndo: {
                             _ = eng.undo()
                         },
-                        onRestart: {
-                            eng.reset()
+                        onRestartFromBeginning: {
+                            // "chết thì chơi lại từ đầu" -> Reset to Level 1 and 0 score!
+                            currentRunScore = 0
+                            loadLevel(at: 0)
                         },
                         onSelectLevel: {
                             showLevelSelect = true
@@ -144,7 +147,7 @@ public struct GameView: View {
         }
         .onAppear {
             if let firstLevel = repository.levels.first {
-                engine = SnakePuzzleEngine(level: firstLevel)
+                engine = SnakePuzzleEngine(level: firstLevel, initialScore: currentRunScore, highScore: repository.highScore)
             }
         }
     }
@@ -162,19 +165,21 @@ public struct GameView: View {
 
     private func handleMove(_ direction: Direction) {
         guard let eng = engine, let lvl = currentLevel else { return }
-        let result = eng.move(in: direction)
+        let result = eng.move(direction)
         switch result {
-        case .levelWon:
+        case .levelWon(_, let totalScore):
             sound.playWin()
+            isNewHighScore = repository.recordScore(totalScore)
             repository.recordWin(
                 levelId: lvl.id,
                 moves: eng.currentState.movesCount,
                 targetApples: lvl.applePositions.count,
                 optimalMoves: lvl.optimalMoves
             )
-        case .levelLost:
+        case .levelLost(_, let finalScore):
             sound.playSpike()
-        case .appleEaten(_, let portalJustOpened):
+            _ = repository.recordScore(finalScore)
+        case .appleEaten(_, let portalJustOpened, _):
             sound.playEat()
             if portalJustOpened {
                 sound.playPortalUnlocked()
@@ -192,6 +197,6 @@ public struct GameView: View {
         guard index >= 0 && index < repository.levels.count else { return }
         currentLevelIndex = index
         let lvl = repository.levels[index]
-        engine = SnakePuzzleEngine(level: lvl)
+        engine = SnakePuzzleEngine(level: lvl, initialScore: currentRunScore, highScore: repository.highScore)
     }
 }

@@ -24,11 +24,15 @@ class LevelRepository private constructor(context: Context) {
     var isDpadOnLeft by mutableStateOf(true)
         private set
 
+    var highScore by mutableStateOf(0)
+        private set
+
     init {
         unlockedLevelMax = prefs.getInt(KEY_UNLOCKED_MAX, 1).coerceAtLeast(1)
         val skinId = prefs.getString(KEY_SELECTED_SKIN, SnakeSkin.EMERALD.id) ?: SnakeSkin.EMERALD.id
         selectedSkin = SnakeSkin.fromId(skinId)
         isDpadOnLeft = prefs.getBoolean(KEY_DPAD_LEFT, true)
+        highScore = prefs.getInt(KEY_HIGH_SCORE, 0)
         levels = loadLevelsFromAssets(context)
     }
 
@@ -107,12 +111,22 @@ class LevelRepository private constructor(context: Context) {
         prefs.edit().putBoolean(KEY_DPAD_LEFT, onLeft).apply()
     }
 
+    fun recordScore(score: Int): Boolean {
+        if (score > highScore) {
+            highScore = score
+            prefs.edit().putInt(KEY_HIGH_SCORE, score).apply()
+            return true
+        }
+        return false
+    }
+
     companion object {
         private const val KEY_UNLOCKED_MAX = "unlocked_level_max"
         private const val KEY_STARS_PREFIX = "stars_"
         private const val KEY_BEST_MOVES_PREFIX = "best_moves_"
         private const val KEY_SELECTED_SKIN = "selected_skin"
         private const val KEY_DPAD_LEFT = "dpad_left"
+        private const val KEY_HIGH_SCORE = "high_score"
 
         @Volatile
         private var instance: LevelRepository? = null

@@ -10,21 +10,25 @@ enum class SnakeSkin(
     val tailColor: Color,
     val accentColor: Color,
     val bellyColor: Color,
+    val throatColor: Color,
+    val lipsColor: Color,
     val eyeColor: Color,
     val pupilColor: Color,
     val cheekColor: Color
 ) {
     EMERALD(
         id = "emerald",
-        displayName = "Emerald Viper",
-        headColor = Color(0xFF2ECC71),
-        bodyColor = Color(0xFF27AE60),
-        tailColor = Color(0xFF1E8449),
-        accentColor = Color(0xFF58D68D),
-        bellyColor = Color(0xFFF9E79F),
+        displayName = "Apple Worm (Classic)",
+        headColor = Color(0xFF16A324),
+        bodyColor = Color(0xFF149921),
+        tailColor = Color(0xFF0F7A19),
+        accentColor = Color(0xFF38C747),
+        bellyColor = Color(0xFF92D41E),
+        throatColor = Color(0xFF92D41E),
+        lipsColor = Color(0xFFB3148B),
         eyeColor = Color.White,
-        pupilColor = Color(0xFF1A1A1E),
-        cheekColor = Color(0x73FF69B4)
+        pupilColor = Color(0xFF111111),
+        cheekColor = Color(0x66FF69B4)
     ),
     GOLDEN_DRAGON(
         id = "golden",
@@ -34,6 +38,8 @@ enum class SnakeSkin(
         tailColor = Color(0xFFD68910),
         accentColor = Color(0xFFFFF275),
         bellyColor = Color(0xFFFEF9E7),
+        throatColor = Color(0xFFFFF275),
+        lipsColor = Color(0xFFC0392B),
         eyeColor = Color.White,
         pupilColor = Color(0xFF78281F),
         cheekColor = Color(0x66FF8C00)
@@ -46,6 +52,8 @@ enum class SnakeSkin(
         tailColor = Color(0xFF009ACD),
         accentColor = Color(0xFFE000FF),
         bellyColor = Color(0xFFD4F8FF),
+        throatColor = Color(0xFF00F5FF),
+        lipsColor = Color(0xFFE000FF),
         eyeColor = Color.White,
         pupilColor = Color(0xFF1B0033),
         cheekColor = Color(0x73E000FF)
@@ -58,6 +66,8 @@ enum class SnakeSkin(
         tailColor = Color(0xFFC71585),
         accentColor = Color(0xFFFFB6C1),
         bellyColor = Color(0xFFFFF0F5),
+        throatColor = Color(0xFFFFB6C1),
+        lipsColor = Color(0xFF880E4F),
         eyeColor = Color.White,
         pupilColor = Color(0xFF4A0023),
         cheekColor = Color(0x66FF1493)
@@ -70,6 +80,8 @@ enum class SnakeSkin(
         tailColor = Color(0xFF1A252F),
         accentColor = Color(0xFF9B59B6),
         bellyColor = Color(0xFFBDC3C7),
+        throatColor = Color(0xFF9B59B6),
+        lipsColor = Color(0xFF8E44AD),
         eyeColor = Color(0xFFFF4136),
         pupilColor = Color(0xFF111111),
         cheekColor = Color(0x4D9B59B6)
