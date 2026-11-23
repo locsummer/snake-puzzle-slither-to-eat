@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.snakepuzzle.game.ui.theme.*
 
 @Composable
@@ -37,19 +38,23 @@ fun VictoryDialog(
     onReplay: () -> Unit,
     onSelectLevel: () -> Unit
 ) {
-    Dialog(onDismissRequest = {}) {
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Surface(
             shape = RoundedCornerShape(22.dp),
             color = Color.White,
-            shadowElevation = 10.dp,
+            shadowElevation = 12.dp,
             modifier = Modifier
-                .widthIn(max = 520.dp)
-                .padding(8.dp)
+                .width(540.dp)
+                .wrapContentHeight()
+                .padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp)
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -75,9 +80,9 @@ fun VictoryDialog(
                         )
                     }
 
-                    // 3 Stars rating (Compact & Cute)
+                    // 3 Stars rating
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         for (i in 1..3) {
@@ -91,7 +96,7 @@ fun VictoryDialog(
                     }
                 }
 
-                // 2. Score Summary Pill (Compact single-row card)
+                // 2. Score Summary Pill (Single horizontal row with maxLines=1)
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = Color(0xFFF0FDF4),
@@ -100,7 +105,7 @@ fun VictoryDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                            .padding(horizontal = 14.dp, vertical = 7.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -108,19 +113,22 @@ fun VictoryDialog(
                             text = "⏱️ ${elapsedSeconds}s (+${timeBonus} PTS)",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF15803D)
+                            color = Color(0xFF15803D),
+                            maxLines = 1
                         )
                         Text(
-                            text = "MÀN NÀY: +$levelScore PTS",
+                            text = "MÀN: +$levelScore PTS",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF166534)
+                            color = Color(0xFF166534),
+                            maxLines = 1
                         )
                         Text(
                             text = "TỔNG: $totalScore PTS",
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF14532D)
+                            color = Color(0xFF14532D),
+                            maxLines = 1
                         )
                     }
                 }

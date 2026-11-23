@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.snakepuzzle.game.ui.theme.TextPrimary
 import com.snakepuzzle.game.ui.theme.TextSecondary
 
@@ -25,14 +26,18 @@ fun LifeLostDialog(
     onUndo: () -> Unit,
     onRetryLevel: () -> Unit
 ) {
-    Dialog(onDismissRequest = {}) {
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Surface(
             shape = RoundedCornerShape(22.dp),
             color = Color.White,
             shadowElevation = 8.dp,
             modifier = Modifier
-                .widthIn(max = 480.dp)
-                .padding(8.dp)
+                .width(480.dp)
+                .wrapContentHeight()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Column(
                 modifier = Modifier
