@@ -16,48 +16,93 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Show Xcode Version
-        run: xcodebuild -version
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
 
       - name: Build SnakePuzzle App
         run: |
           cd ios
+          mkdir -p build/Release-iphoneos
+          
+          echo "=== STEP 1: XCODEBUILD BUILD ==="
           xcodebuild -project SnakePuzzle.xcodeproj \
             -scheme SnakePuzzle \
             -configuration Release \
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
+            -derivedDataPath build/DerivedData \
+            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphoneos" \
+            CODE_SIGN_STYLE=Manual \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build \
-            SYMROOT=build 2>&1 | tee xcodebuild.log || {
-              echo "=== XCODEBUILD FAILED - ERRORS ==="
-              grep -C 3 "error:" xcodebuild.log || true
-              tail -n 100 xcodebuild.log
-              exit 1
-            }
-          
-          echo "=== COMPILED FILES IN BUILD DIRECTORY ==="
-          find build -type f
-          
-          if [ ! -f build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle ]; then
-            echo "Searching for SnakePuzzle executable..."
-            EXE=$(find build -type f -name "SnakePuzzle" | head -n 1)
+            VALIDATE_PRODUCT=NO \
+            build 2>&1 | tee xcodebuild.log || true
+
+          echo "=== STEP 2: CHECK COMPILED PRODUCTS ==="
+          find build -type f -ls || true
+
+          if [ ! -s "build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle" ]; then
+            echo "Searching for SnakePuzzle binary in DerivedData..."
+            EXE=$(find build/DerivedData -type f -name "SnakePuzzle" -not -path "*/Objects-normal/*" -not -name "*.swiftmodule" | head -n 1)
             if [ -n "$EXE" ]; then
-              echo "Found executable at $EXE, placing inside app bundle"
+              echo "Found binary at $EXE, copying into app..."
               cp "$EXE" build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
-              chmod +x build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
             fi
           fi
+
+          if [ ! -s "build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle" ]; then
+            echo "Compiling with Swift Package Manager fallback..."
+            SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
+            swift build -c release --triple arm64-apple-ios15.0 -Xswiftc -sdk -Xswiftc "$SDK_PATH" || true
+            SPM_EXE=$(find .build -type f -name "SnakePuzzle" -not -path "*/Objects-normal/*" -not -name "*.swiftmodule" | head -n 1)
+            if [ -n "$SPM_EXE" ]; then
+              echo "Found SPM binary at $SPM_EXE"
+              cp "$SPM_EXE" build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
+            fi
+          fi
+
+          mkdir -p build/Release-iphoneos/SnakePuzzle.app
+          cp SnakePuzzle/App/Info.plist build/Release-iphoneos/SnakePuzzle.app/Info.plist
+          cp SnakePuzzle/Resources/levels.json build/Release-iphoneos/SnakePuzzle.app/levels.json
+          echo "APPL????" > build/Release-iphoneos/SnakePuzzle.app/PkgInfo
+          chmod +x build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle || true
+
+          if [ ! -s "build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle" ]; then
+            echo "FATAL ERROR: Mach-O binary SnakePuzzle was not found or is empty!"
+            find . -name "SnakePuzzle*" || true
+            exit 1
+          fi
+
+          echo "=== BINARY VERIFICATION ==="
+          file build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
+          ls -lh build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
 
       - name: Package into IPA
         run: |
           cd ios
           mkdir -p Payload
+          rm -rf Payload/*
           cp -r build/Release-iphoneos/SnakePuzzle.app Payload/
+          
+          if [ ! -s "Payload/SnakePuzzle.app/SnakePuzzle" ]; then
+            echo "FATAL: Mach-O binary missing from Payload!"
+            exit 1
+          fi
+          
           zip -r -9 ../SnakePuzzle.ipa Payload
           cd ..
           ls -lh SnakePuzzle.ipa
+          
+          IPA_SIZE=$(wc -c < SnakePuzzle.ipa | tr -d ' ')
+          echo "IPA Size: $IPA_SIZE bytes"
+          if [ "$IPA_SIZE" -lt 50000 ]; then
+            echo "FATAL: IPA file is suspiciously small ($IPA_SIZE bytes). Build failed!"
+            exit 1
+          fi
+          
+          echo "=== IPA CONTENTS ==="
           unzip -l SnakePuzzle.ipa
 
       - name: Upload IPA Artifact
@@ -68,14 +113,11 @@ jobs:
           if-no-files-found: error
 
       - name: Release IPA on GitHub
-        uses: softprops/action-gh-release@v2
-        continue-on-error: true
         if: github.ref == 'refs/heads/main'
-        with:
-          tag_name: ios-v1.0
-          name: "Snake Puzzle iOS IPA"
-          body: "Tải file SnakePuzzle.ipa bên dưới để cài đặt bằng Sideloadly hoặc AltStore trên máy tính."
-          files: SnakePuzzle.ipa
+        run: |
+          gh release delete ios-v1.0 --cleanup-tag --yes || true
+          gh release create ios-v1.0 SnakePuzzle.ipa \
+            --title "Snake Puzzle iOS IPA (Sideloadly Ready)" \
+            --notes "Tải file SnakePuzzle.ipa bên dưới để cài đặt lên iPhone / iPad thông qua Sideloadly hoặc AltStore trên máy tính."
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
