@@ -32,7 +32,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build
+            build 2>&1 | tee ../xcodebuild_full.log
 
           echo "=== DERIVEDDATA PRODUCTS ==="
           ls -lh DerivedData/Build/Products/Release-iphoneos/
@@ -71,6 +71,17 @@ jobs:
           
           echo "=== IPA CONTENTS ==="
           unzip -l SnakePuzzle.ipa
+
+      - name: Upload Error Log on Failure
+        if: failure()
+        run: |
+          gh release delete build-debug --cleanup-tag --yes || true
+          tail -n 200 xcodebuild_full.log > error_summary.txt
+          gh release create build-debug error_summary.txt xcodebuild_full.log \
+            --title "Build Debug Log" \
+            --notes "Xcodebuild error logs"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
