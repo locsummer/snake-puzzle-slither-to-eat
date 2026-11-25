@@ -30,12 +30,25 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             build \
-            CONFIGURATION_BUILD_DIR=build/Release-iphoneos 2>&1 | tee xcodebuild.log || {
+            SYMROOT=build 2>&1 | tee xcodebuild.log || {
               echo "=== XCODEBUILD FAILED - ERRORS ==="
               grep -C 3 "error:" xcodebuild.log || true
               tail -n 100 xcodebuild.log
               exit 1
             }
+          
+          echo "=== COMPILED FILES IN BUILD DIRECTORY ==="
+          find build -type f
+          
+          if [ ! -f build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle ]; then
+            echo "Searching for SnakePuzzle executable..."
+            EXE=$(find build -type f -name "SnakePuzzle" | head -n 1)
+            if [ -n "$EXE" ]; then
+              echo "Found executable at $EXE, placing inside app bundle"
+              cp "$EXE" build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
+              chmod +x build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
+            fi
+          fi
 
       - name: Package into IPA
         run: |
@@ -45,6 +58,7 @@ jobs:
           zip -r -9 ../SnakePuzzle.ipa Payload
           cd ..
           ls -lh SnakePuzzle.ipa
+          unzip -l SnakePuzzle.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
