@@ -23,69 +23,36 @@ jobs:
       - name: Build SnakePuzzle App
         run: |
           cd ios
-          mkdir -p build/Release-iphoneos
-          
-          echo "=== STEP 1: XCODEBUILD BUILD ==="
           xcodebuild -project SnakePuzzle.xcodeproj \
             -scheme SnakePuzzle \
             -configuration Release \
             -sdk iphoneos \
             -destination "generic/platform=iOS" \
-            -derivedDataPath build/DerivedData \
-            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphoneos" \
-            CODE_SIGN_STYLE=Manual \
+            -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            VALIDATE_PRODUCT=NO \
-            build 2>&1 | tee xcodebuild.log || true
+            build
 
-          echo "=== STEP 2: CHECK COMPILED PRODUCTS ==="
-          find build -type f -ls || true
-
-          if [ ! -s "build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle" ]; then
-            echo "Searching for SnakePuzzle binary in DerivedData..."
-            EXE=$(find build/DerivedData -type f -name "SnakePuzzle" -not -path "*/Objects-normal/*" -not -name "*.swiftmodule" | head -n 1)
-            if [ -n "$EXE" ]; then
-              echo "Found binary at $EXE, copying into app..."
-              cp "$EXE" build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
-            fi
-          fi
-
-          if [ ! -s "build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle" ]; then
-            echo "Compiling with Swift Package Manager fallback..."
-            SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
-            swift build -c release --triple arm64-apple-ios15.0 -Xswiftc -sdk -Xswiftc "$SDK_PATH" || true
-            SPM_EXE=$(find .build -type f -name "SnakePuzzle" -not -path "*/Objects-normal/*" -not -name "*.swiftmodule" | head -n 1)
-            if [ -n "$SPM_EXE" ]; then
-              echo "Found SPM binary at $SPM_EXE"
-              cp "$SPM_EXE" build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
-            fi
-          fi
-
-          mkdir -p build/Release-iphoneos/SnakePuzzle.app
-          cp SnakePuzzle/App/Info.plist build/Release-iphoneos/SnakePuzzle.app/Info.plist
-          cp SnakePuzzle/Resources/levels.json build/Release-iphoneos/SnakePuzzle.app/levels.json
-          echo "APPL????" > build/Release-iphoneos/SnakePuzzle.app/PkgInfo
-          chmod +x build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle || true
-
-          if [ ! -s "build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle" ]; then
-            echo "FATAL ERROR: Mach-O binary SnakePuzzle was not found or is empty!"
-            find . -name "SnakePuzzle*" || true
-            exit 1
-          fi
-
-          echo "=== BINARY VERIFICATION ==="
-          file build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
-          ls -lh build/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
+          echo "=== DERIVEDDATA PRODUCTS ==="
+          ls -lh DerivedData/Build/Products/Release-iphoneos/
+          ls -lh DerivedData/Build/Products/Release-iphoneos/SnakePuzzle.app/
+          
+          # Verify executable binary
+          file DerivedData/Build/Products/Release-iphoneos/SnakePuzzle.app/SnakePuzzle
 
       - name: Package into IPA
         run: |
           cd ios
           mkdir -p Payload
           rm -rf Payload/*
-          cp -r build/Release-iphoneos/SnakePuzzle.app Payload/
+          cp -r DerivedData/Build/Products/Release-iphoneos/SnakePuzzle.app Payload/
           
+          # Copy resources if missing
+          cp SnakePuzzle/App/Info.plist Payload/SnakePuzzle.app/Info.plist
+          cp SnakePuzzle/Resources/levels.json Payload/SnakePuzzle.app/levels.json
+          
+          # Verify binary in Payload
           if [ ! -s "Payload/SnakePuzzle.app/SnakePuzzle" ]; then
             echo "FATAL: Mach-O binary missing from Payload!"
             exit 1
