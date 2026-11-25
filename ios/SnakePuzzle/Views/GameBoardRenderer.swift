@@ -157,10 +157,7 @@ public struct GameBoardRenderer: View {
  */
 private struct SunburstSkyView: View {
     var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-
+        GeometryReader { _ in
             ZStack {
                 // Base Sky Gradient
                 LinearGradient(

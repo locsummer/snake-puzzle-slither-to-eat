@@ -50,18 +50,18 @@ public final class SnakePuzzleEngine: ObservableObject {
 
         self.currentState = GameState(
             snake: initialSnake,
-            remainingApples = initialApples,
-            movesCount = 0,
+            remainingApples: initialApples,
+            movesCount: 0,
             status: .playing,
-            facingDirection = initialFacing,
-            noticeMessage = isUnlocked ? "Portal is open! Reach the vortex!" : nil,
-            isPortalUnlocked = isUnlocked,
-            score = initialScore,
-            highScore = highScore,
-            levelScore = 0,
-            lives = initialLives,
-            elapsedSeconds = 0,
-            timeBonus = 0
+            facingDirection: initialFacing,
+            noticeMessage: isUnlocked ? "Portal is open! Reach the vortex!" : nil,
+            isPortalUnlocked: isUnlocked,
+            score: initialScore,
+            highScore: highScore,
+            levelScore: 0,
+            lives: initialLives,
+            elapsedSeconds: 0,
+            timeBonus: 0
         )
     }
 
@@ -89,18 +89,18 @@ public final class SnakePuzzleEngine: ObservableObject {
 
         currentState = GameState(
             snake: initialSnake,
-            remainingApples = initialApples,
-            movesCount = 0,
+            remainingApples: initialApples,
+            movesCount: 0,
             status: .playing,
-            facingDirection = initialFacing,
-            noticeMessage = isUnlocked ? "Portal is open! Reach the vortex!" : nil,
-            isPortalUnlocked = isUnlocked,
-            score = initialScore,
-            highScore = highScore,
-            levelScore = 0,
-            lives = keepLives ?? currentState.lives,
-            elapsedSeconds = 0,
-            timeBonus = 0
+            facingDirection: initialFacing,
+            noticeMessage: isUnlocked ? "Portal is open! Reach the vortex!" : nil,
+            isPortalUnlocked: isUnlocked,
+            score: initialScore,
+            highScore: highScore,
+            levelScore: 0,
+            lives: keepLives ?? currentState.lives,
+            elapsedSeconds: 0,
+            timeBonus: 0
         )
     }
 
@@ -186,7 +186,7 @@ public final class SnakePuzzleEngine: ObservableObject {
         }
 
         var resolvedSnake = nextSnake
-        if nextStatus == .playing && deathReason == null {
+        if nextStatus == .playing && deathReason == nil {
             var falling = true
             while falling {
                 if resolvedSnake.contains(where: { spikePositions.contains($0) }) {
@@ -255,13 +255,13 @@ public final class SnakePuzzleEngine: ObservableObject {
         }
 
         currentState = GameState(
-            snake = resolvedSnake,
-            remainingApples = nextApples,
-            movesCount = newMoves,
-            status = nextStatus,
-            facingDirection = direction,
-            noticeMessage = notice,
-            isPortalUnlocked = isPortalNowUnlocked,
+            snake: resolvedSnake,
+            remainingApples: nextApples,
+            movesCount: newMoves,
+            status: nextStatus,
+            facingDirection: direction,
+            noticeMessage: notice,
+            isPortalUnlocked: isPortalNowUnlocked,
             lastEatenPosition: appleEatenThisTurn ? newHead : nil,
             score: totalRunScore,
             highScore: max(highScore, totalRunScore),

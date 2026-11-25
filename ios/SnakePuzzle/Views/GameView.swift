@@ -210,7 +210,7 @@ public struct GameView: View {
             currentRunScore = totalScore
             isNewHighScore = repository.recordScore(totalScore)
             repository.recordWin(
-                levelId = lvl.id,
+                levelId: lvl.id,
                 moves: eng.currentState.movesCount,
                 targetApples: lvl.applePositions.count,
                 optimalMoves: lvl.optimalMoves
