@@ -18,7 +18,7 @@ jobs:
       - name: Show Xcode Version
         run: xcodebuild -version
 
-      - name: Build and Archive
+      - name: Build SnakePuzzle App
         run: |
           cd ios
           xcodebuild -project SnakePuzzle.xcodeproj \
@@ -29,14 +29,22 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            clean archive -archivePath build/SnakePuzzle.xcarchive
+            build \
+            CONFIGURATION_BUILD_DIR=build/Release-iphoneos 2>&1 | tee xcodebuild.log || {
+              echo "=== XCODEBUILD FAILED - ERRORS ==="
+              grep -C 3 "error:" xcodebuild.log || true
+              tail -n 100 xcodebuild.log
+              exit 1
+            }
 
       - name: Package into IPA
         run: |
           cd ios
           mkdir -p Payload
-          cp -r build/SnakePuzzle.xcarchive/Products/Applications/SnakePuzzle.app Payload/
+          cp -r build/Release-iphoneos/SnakePuzzle.app Payload/
           zip -r -9 ../SnakePuzzle.ipa Payload
+          cd ..
+          ls -lh SnakePuzzle.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
