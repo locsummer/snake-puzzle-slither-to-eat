@@ -158,8 +158,6 @@ public struct GameBoardRenderer: View {
 private struct SunburstSkyView: View {
     var body: some View {
         GeometryReader { geo in
-            let h = geo.size.height
-
             ZStack {
                 // Base Sky Gradient
                 LinearGradient(
@@ -192,28 +190,28 @@ private struct SunburstSkyView: View {
                 VStack {
                     Spacer()
                     Canvas { context, size in
-                        let h = size.height
-                        let w = size.width
+                        let hillH = size.height
+                        let hillW = size.width
 
                         var hillBack = Path()
-                        hillBack.move(to: CGPoint(x: 0, y: h))
-                        hillBack.addLine(to: CGPoint(x: 0, y: h * 0.4))
-                        hillBack.addCurve(to: CGPoint(x: w * 0.7, y: h * 0.35), control1: CGPoint(x: w * 0.25, y: h * 0.2), control2: CGPoint(x: w * 0.45, y: h * 0.45))
-                        hillBack.addCurve(to: CGPoint(x: w, y: h * 0.38), control1: CGPoint(x: w * 0.85, y: h * 0.25), control2: CGPoint(x: w * 0.95, y: h * 0.4))
-                        hillBack.addLine(to: CGPoint(x: w, y: h))
+                        hillBack.move(to: CGPoint(x: 0, y: hillH))
+                        hillBack.addLine(to: CGPoint(x: 0, y: hillH * 0.4))
+                        hillBack.addCurve(to: CGPoint(x: hillW * 0.7, y: hillH * 0.35), control1: CGPoint(x: hillW * 0.25, y: hillH * 0.2), control2: CGPoint(x: hillW * 0.45, y: hillH * 0.45))
+                        hillBack.addCurve(to: CGPoint(x: hillW, y: hillH * 0.38), control1: CGPoint(x: hillW * 0.85, y: hillH * 0.25), control2: CGPoint(x: hillW * 0.95, y: hillH * 0.4))
+                        hillBack.addLine(to: CGPoint(x: hillW, y: hillH))
                         hillBack.closeSubpath()
                         context.fill(hillBack, with: .color(Color(red: 0.33, green: 0.60, blue: 0.10)))
 
                         var hillFront = Path()
-                        hillFront.move(to: CGPoint(x: 0, y: h))
-                        hillFront.addLine(to: CGPoint(x: 0, y: h * 0.55))
-                        hillFront.addCurve(to: CGPoint(x: w * 0.65, y: h * 0.50), control1: CGPoint(x: w * 0.2, y: h * 0.35), control2: CGPoint(x: w * 0.4, y: h * 0.6))
-                        hillFront.addCurve(to: CGPoint(x: w, y: h * 0.48), control1: CGPoint(x: w * 0.8, y: h * 0.38), control2: CGPoint(x: w * 0.92, y: h * 0.55))
-                        hillFront.addLine(to: CGPoint(x: w, y: h))
+                        hillFront.move(to: CGPoint(x: 0, y: hillH))
+                        hillFront.addLine(to: CGPoint(x: 0, y: hillH * 0.55))
+                        hillFront.addCurve(to: CGPoint(x: hillW * 0.65, y: hillH * 0.50), control1: CGPoint(x: hillW * 0.2, y: hillH * 0.35), control2: CGPoint(x: hillW * 0.4, y: hillH * 0.6))
+                        hillFront.addCurve(to: CGPoint(x: hillW, y: hillH * 0.48), control1: CGPoint(x: hillW * 0.8, y: hillH * 0.38), control2: CGPoint(x: hillW * 0.92, y: hillH * 0.55))
+                        hillFront.addLine(to: CGPoint(x: hillW, y: hillH))
                         hillFront.closeSubpath()
                         context.fill(hillFront, with: .color(Color(red: 0.44, green: 0.71, blue: 0.15)))
                     }
-                    .frame(height: h * 0.22)
+                    .frame(height: geo.size.height * 0.22)
                 }
             }
         }
