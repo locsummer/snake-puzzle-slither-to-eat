@@ -9,6 +9,7 @@ public struct GameView: View {
     @State private var currentLives: Int = 3
     @State private var isNewHighScore: Bool = false
     @State private var engine: SnakePuzzleEngine?
+    @State private var gameState: GameState?
 
     @State private var showLevelSelect: Bool = false
     @State private var showSkinSelect: Bool = false
@@ -17,7 +18,14 @@ public struct GameView: View {
 
     private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
 
-    public init() {}
+    public init() {
+        let repo = LevelRepository.shared
+        if let first = repo.levels.first {
+            let eng = SnakePuzzleEngine(level: first, initialScore: 0, highScore: repo.highScore, initialLives: 3)
+            _engine = State(initialValue: eng)
+            _gameState = State(initialValue: eng.currentState)
+        }
+    }
 
     private var currentLevel: Level? {
         guard currentLevelIndex >= 0 && currentLevelIndex < repository.levels.count else { return nil }
@@ -26,20 +34,22 @@ public struct GameView: View {
 
     public var body: some View {
         ZStack {
-            if let eng = engine, let lvl = currentLevel {
+            if let eng = engine, let lvl = currentLevel, let state = gameState {
                 LandscapeGameHUD(
                     level: lvl,
-                    state: eng.currentState,
+                    state: state,
                     canUndo: eng.canUndo,
                     isDpadOnLeft: repository.isDpadOnLeft,
                     onDirection: { dir in handleMove(dir) },
                     onUndo: {
                         sound.playClick()
                         _ = eng.undo()
+                        self.gameState = eng.currentState
                     },
                     onRestart: {
                         sound.playClick()
                         eng.reset(keepLives: currentLives)
+                        self.gameState = eng.currentState
                     },
                     onPrevLevel: {
                         sound.playClick()
@@ -72,7 +82,7 @@ public struct GameView: View {
                 ) {
                     GameBoardRenderer(
                         level: lvl,
-                        state: eng.currentState,
+                        state: state,
                         skin: repository.selectedSkin
                     )
                     .contentShape(Rectangle())
@@ -85,9 +95,9 @@ public struct GameView: View {
                 }
 
                 // Victory, LifeLost & Defeat modals
-                switch eng.currentState.status {
+                switch state.status {
                 case .won:
-                    let moves = eng.currentState.movesCount
+                    let moves = state.movesCount
                     let stars: Int = {
                         if moves <= lvl.optimalMoves + 2 { return 3 }
                         if moves <= lvl.optimalMoves + 6 { return 2 }
@@ -100,19 +110,20 @@ public struct GameView: View {
                         moves: moves,
                         optimalMoves: lvl.optimalMoves,
                         stars: stars,
-                        levelScore: eng.currentState.levelScore,
-                        totalScore: eng.currentState.score,
+                        levelScore: state.levelScore,
+                        totalScore: state.score,
                         highScore: repository.highScore,
-                        elapsedSeconds: eng.currentState.elapsedSeconds,
-                        timeBonus: eng.currentState.timeBonus,
+                        elapsedSeconds: state.elapsedSeconds,
+                        timeBonus: state.timeBonus,
                         isNewHighScore: isNewHighScore,
                         hasNextLevel: currentLevelIndex + 1 < repository.levels.count,
                         onNextLevel: {
                             let nextIdx = (currentLevelIndex + 1 < repository.levels.count) ? currentLevelIndex + 1 : 0
-                            loadLevel(at: nextIdx, keepScore: eng.currentState.score, keepLives: currentLives)
+                            loadLevel(at: nextIdx, keepScore: state.score, keepLives: currentLives)
                         },
                         onReplay: {
                             eng.reset(keepLives: currentLives)
+                            self.gameState = eng.currentState
                         },
                         onSelectLevel: {
                             showLevelSelect = true
@@ -126,6 +137,7 @@ public struct GameView: View {
                         canUndo: eng.canUndo,
                         onUndo: {
                             _ = eng.undo()
+                            self.gameState = eng.currentState
                         },
                         onRetryLevel: {
                             loadLevel(at: currentLevelIndex, keepScore: currentRunScore, keepLives: remainingLives)
@@ -169,6 +181,9 @@ public struct GameView: View {
         }
         .onReceive(timer) { _ in
             engine?.tickTimer()
+            if let eng = engine {
+                self.gameState = eng.currentState
+            }
         }
         .sheet(isPresented: $showLevelSelect) {
             LevelSelectView(
@@ -184,8 +199,10 @@ public struct GameView: View {
             )
         }
         .onAppear {
-            if let firstLevel = repository.levels.first {
-                engine = SnakePuzzleEngine(level: firstLevel, initialScore: currentRunScore, highScore: repository.highScore, initialLives: currentLives)
+            if gameState == nil, let firstLevel = repository.levels.first {
+                let eng = SnakePuzzleEngine(level: firstLevel, initialScore: currentRunScore, highScore: repository.highScore, initialLives: currentLives)
+                self.engine = eng
+                self.gameState = eng.currentState
             }
         }
     }
@@ -204,6 +221,9 @@ public struct GameView: View {
     private func handleMove(_ direction: Direction) {
         guard let eng = engine, let lvl = currentLevel else { return }
         let result = eng.move(direction)
+        // Force synchronous view update in SwiftUI
+        self.gameState = eng.currentState
+
         switch result {
         case .levelWon(_, let totalScore, _):
             sound.playWin()
@@ -242,6 +262,8 @@ public struct GameView: View {
         currentRunScore = keepScore
         currentLives = keepLives
         let lvl = repository.levels[index]
-        engine = SnakePuzzleEngine(level: lvl, initialScore: keepScore, highScore: repository.highScore, initialLives: keepLives)
+        let eng = SnakePuzzleEngine(level: lvl, initialScore: keepScore, highScore: repository.highScore, initialLives: keepLives)
+        self.engine = eng
+        self.gameState = eng.currentState
     }
 }

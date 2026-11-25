@@ -134,11 +134,12 @@ public struct GameBoardRenderer: View {
                         facing: state.facingDirection,
                         skin: skin,
                         isDead: state.isDead,
-                        cellSize: cellSize
+                        cellSize: cellSize,
+                        boardWidth: boardWidth,
+                        boardHeight: boardHeight
                     )
                 }
                 .frame(width: boardWidth, height: boardHeight)
-                .offset(x: offsetX, y: offsetY)
             }
         }
         .onAppear {
@@ -355,14 +356,15 @@ private struct AppleWormSnakeView: View {
     let skin: SnakeSkin
     let isDead: Bool
     let cellSize: CGFloat
+    let boardWidth: CGFloat
+    let boardHeight: CGFloat
 
     var body: some View {
         let bodyRadius = cellSize * 0.40
 
-        ZStack {
+        ZStack(alignment: .topLeading) {
             // Pass 1: Bold black outline behind entire snake
-            ForEach(0..<snake.count, id: \.self) { i in
-                let pos = snake[i]
+            ForEach(Array(snake.enumerated()), id: \.offset) { index, pos in
                 Circle()
                     .fill(Color.black)
                     .frame(width: (bodyRadius + 3.5) * 2, height: (bodyRadius + 3.5) * 2)
@@ -370,9 +372,8 @@ private struct AppleWormSnakeView: View {
             }
 
             // Pass 2: Green body segments
-            ForEach(0..<snake.count, id: \.self) { i in
-                let pos = snake[i]
-                let isHead = (i == 0)
+            ForEach(Array(snake.enumerated()), id: \.offset) { index, pos in
+                let isHead = (index == 0)
 
                 ZStack {
                     Circle()
@@ -396,6 +397,8 @@ private struct AppleWormSnakeView: View {
                 .position(x: CGFloat(pos.x) * cellSize + cellSize / 2, y: CGFloat(pos.y) * cellSize + cellSize / 2)
             }
         }
+        .frame(width: boardWidth, height: boardHeight)
+        .animation(.easeInOut(duration: 0.12), value: snake)
     }
 }
 
