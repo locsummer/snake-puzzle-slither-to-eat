@@ -3,8 +3,6 @@ name: Build iOS IPA (Sideloadly Ready)
 on:
   push:
     branches: [ main ]
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -12,7 +10,7 @@ permissions:
 
 jobs:
   build-ipa:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -49,26 +47,13 @@ jobs:
 
       - name: Release IPA on GitHub
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        continue-on-error: true
+        if: github.ref == 'refs/heads/main'
         with:
-          tag_name: ios-release
-          name: "Snake Puzzle iOS IPA (Sideloadly & AltStore)"
-          body: |
-            ## 📱 Snake Puzzle iOS IPA - Sideloadly & AltStore Ready
-            
-            Game Rắn Ăn Táo (Snake Puzzle: Slither to Eat) phiên bản dành cho iPhone / iPad.
-            
-            ### Hướng dẫn cài đặt vào iPhone bằng Sideloadly:
-            1. Tải file **`SnakePuzzle.ipa`** đính kèm bên dưới.
-            2. Kết nối iPhone với máy tính qua cáp USB (đảm bảo iTunes trên PC đã nhận diện iPhone).
-            3. Mở phần mềm **Sideloadly**:
-               - Kéo thả file `SnakePuzzle.ipa` vào khung bên trái của Sideloadly.
-               - Nhập tài khoản **Apple ID** của bạn vào ô Apple ID.
-               - Bấm nút **Start** và nhập mật khẩu Apple ID khi được yêu cầu (Sideloadly sẽ tự động ký chứng chỉ và cài game lên máy).
-            4. Trên iPhone:
-               - Mở **Cài đặt (Settings)** > **Cài đặt chung (General)** > **Quản lý VPN & Thiết bị (VPN & Device Management)**.
-               - Chọn vào Apple ID của bạn và bấm **Tin cậy (Trust)**.
-            5. Mở game và thưởng thức!
+          tag_name: ios-v1.0
+          name: "Snake Puzzle iOS IPA"
+          body: "Tải file SnakePuzzle.ipa bên dưới để cài đặt bằng Sideloadly hoặc AltStore trên máy tính."
           files: SnakePuzzle.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
